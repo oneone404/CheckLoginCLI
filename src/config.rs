@@ -220,6 +220,7 @@ pub fn load_config() -> AppConfig {
                 content = content.replace('\u{feff}', "");
             }
             match serde_json::from_str::<AppConfig>(&content) {
+                Ok(config) => {
                     let mut config = config;
                     log_system(&format!("LOADED CONFIG FROM: {}", path));
                     // Auto Detect Profile logic inside load_config
