@@ -84,8 +84,8 @@ fn run_auto_start_feature(exit_after: bool) {
         if find_and_focus("NPH") {
             let hwnd = get_hwnd_by_title("NPH");
             if hwnd != 0 {
-                log_system(&format!("CLICKING NPH OPEN BUTTON AT ({}, {})...", config.nph_open_x, config.nph_open_y));
-                click_relative(hwnd, config.nph_open_x, config.nph_open_y);
+                log_system(&format!("CLICKING NPH ACTIVE BUTTON AT ({}, {})...", config.nph_active_x, config.nph_active_y));
+                click_relative(hwnd, config.nph_active_x, config.nph_active_y);
             }
         }
     }
@@ -120,7 +120,7 @@ fn config_auto_start() {
     println!("{}", format!("AUTO-SORT AFTER START: {}", sort_after).bold());
     println!("{}", format!("AUTO-OPEN NPH TOOL: {}", open_nph).bold());
     println!("{}", format!("NPH TOOL STATUS (PATH): {}", nph_status).bold());
-    println!("{}", format!("NPH OPEN COORDS: ({}, {})", config.nph_open_x, config.nph_open_y).bold());
+    println!("{}", format!("NPH ACTIVE COORDS: ({}, {})", config.nph_active_x, config.nph_active_y).bold());
     println!("{}", format!("AUTO-SORT DELAY: {} SEC", config.auto_sort_delay_sec).bold());
     println!("{}", format!("SELECTED LDS: {:?}", config.auto_start_lds).bold());
     println!("{}", format!("SORT COLUMNS: {}", config.sort_columns).bold());
@@ -132,7 +132,7 @@ fn config_auto_start() {
     println!("  {}  {}", "[4]".cyan().bold(), "CHANGE AUTO-SORT DELAY".bold());
     println!("  {}  {}", "[5]".cyan().bold(), "CHANGE LD LIST".bold());
     println!("  {}  {}", "[6]".cyan().bold(), "CHANGE SORT COLUMNS".bold());
-    println!("  {}  {}", "[7]".cyan().bold(), "CHANGE NPH OPEN COORDS".bold());
+    println!("  {}  {}", "[7]".cyan().bold(), "CHANGE NPH ACTIVE COORDS".bold());
     println!("  {}  {}", "[0]".cyan().bold(), "GO BACK".bold());
     print!("\n{}", ">> CHOICE: ".yellow().bold());
     let _ = io::stdout().flush();
@@ -214,20 +214,20 @@ fn config_auto_start() {
             pause_and_return();
         }
         7 => {
-            print!("{}", "ENTER NPH OPEN X: ".bold());
+            print!("{}", "ENTER NPH ACTIVE X: ".bold());
             let _ = io::stdout().flush();
             let mut x_input = String::new();
             let _ = io::stdin().read_line(&mut x_input);
             
-            print!("{}", "ENTER NPH OPEN Y: ".bold());
+            print!("{}", "ENTER NPH ACTIVE Y: ".bold());
             let _ = io::stdout().flush();
             let mut y_input = String::new();
             let _ = io::stdin().read_line(&mut y_input);
             
             if let (Ok(x), Ok(y)) = (x_input.trim().parse::<i32>(), y_input.trim().parse::<i32>()) {
-                config.nph_open_x = x;
-                config.nph_open_y = y;
-                log_success(-1, &format!("NPH OPEN COORDS SET TO: ({}, {})", x, y));
+                config.nph_active_x = x;
+                config.nph_active_y = y;
+                log_success(-1, &format!("NPH ACTIVE COORDS SET TO: ({}, {})", x, y));
                 save_config(&config);
             }
             pause_and_return();
