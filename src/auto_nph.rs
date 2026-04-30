@@ -260,6 +260,11 @@ mod win32 {
             std::thread::sleep(std::time::Duration::from_millis(50));
             PostMessageW(hwnd, WM_KEYUP, VK_F5, 0);
         }
+    pub fn maximize_window(hwnd: isize) {
+        if hwnd == 0 { return; }
+        unsafe {
+            ShowWindow(hwnd, 3); // SW_MAXIMIZE
+        }
     }
 }
 
