@@ -411,16 +411,18 @@ fn run_nph_activation() {
     let tool_path = "C:\\Program Files\\NPHTool\\tool.exe";
     let _ = silent_command("cmd")
         .args(["/c", "start", "", tool_path])
-        .spawn(); // Use spawn to not block
+        .spawn();
     
     log_system("STEP 2: WAITING 5 SECONDS FOR WINDOW TO APPEAR...");
     for i in (1..=5).rev() {
-        log_system(&format!("... {} SECONDS REMAINING", i));
+        print!("\r{}", format!("[SYSTEM] ... {} SECONDS REMAINING", i).bold().yellow());
+        let _ = io::stdout().flush();
         std::thread::sleep(Duration::from_secs(1));
     }
+    println!();
     
     log_system("STEP 3: SEARCHING FOR NPH WINDOW...");
-    use crate::auto_nph::{find_and_focus, click_relative, get_hwnd_by_title};
+    use crate::auto_nph::{find_and_focus, click_relative, get_hwnd_by_title, scroll_window};
     
     let mut hwnd = get_hwnd_by_title("NPHTool");
     if hwnd == 0 {
@@ -437,12 +439,28 @@ fn run_nph_activation() {
         click_relative(hwnd, config.nph_active_x, config.nph_active_y);
         
         log_system("STEP 5: WAITING 5 SECONDS FOR REFRESH...");
-        std::thread::sleep(Duration::from_secs(5));
+        for i in (1..=5).rev() {
+            print!("\r{}", format!("[SYSTEM] ... {} SECONDS REMAINING", i).bold().yellow());
+            let _ = io::stdout().flush();
+            std::thread::sleep(Duration::from_secs(1));
+        }
+        println!();
         
         log_system(&format!("STEP 6: CLICKING REFRESH BUTTON AT ({}, {})...", config.nph_refresh_x, config.nph_refresh_y));
         click_relative(hwnd, config.nph_refresh_x, config.nph_refresh_y);
         
-        log_success(-1, "NPH ACTIVATED AND REFRESHED SUCCESSFULLY!");
+        log_system("STEP 7: WAITING 5 SECONDS TO TEST SCROLL...");
+        for i in (1..=5).rev() {
+            print!("\r{}", format!("[SYSTEM] ... {} SECONDS REMAINING", i).bold().yellow());
+            let _ = io::stdout().flush();
+            std::thread::sleep(Duration::from_secs(1));
+        }
+        println!();
+
+        log_system("STEP 8: PERFORMING TEST SCROLL (MOUSE WHEEL)...");
+        scroll_window(hwnd, -500); // Scroll down
+        
+        log_success(-1, "NPH ACTIVATED, REFRESHED AND SCROLLED SUCCESSFULLY!");
     } else {
         log_error(-1, "NPH WINDOW NOT FOUND! PLEASE ENSURE NPHTOOL IS RUNNING.");
     }

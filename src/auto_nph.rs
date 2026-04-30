@@ -35,8 +35,13 @@ mod win32 {
     const WM_LBUTTONDOWN: u32 = 0x0201;
     const WM_LBUTTONUP: u32 = 0x0202;
     const WM_MOUSEMOVE: u32 = 0x0200;
+    const WM_MOUSEWHEEL: u32 = 0x020A;
+    const WHEEL_DELTA: i16 = 120;
     const WM_ACTIVATE: u32 = 0x0006;
     const WA_ACTIVATE: usize = 1;
+    const WM_KEYDOWN: u32 = 0x0100;
+    const WM_KEYUP: u32 = 0x0101;
+    const VK_F5: usize = 0x74;
 
     #[repr(C)]
     pub struct Point {
@@ -213,6 +218,23 @@ mod win32 {
 
     pub fn click_bg(hwnd: isize, x: i32, y: i32) {
         click_relative(hwnd, x, y);
+    }
+
+    pub fn scroll_window(hwnd: isize, delta: i32) {
+        if hwnd == 0 { return; }
+        unsafe {
+            let wparam = ((delta as u32) << 16) as usize;
+            SendMessageW(hwnd, WM_MOUSEWHEEL, wparam, 0);
+        }
+    }
+
+    pub fn send_f5(hwnd: isize) {
+        if hwnd == 0 { return; }
+        unsafe {
+            PostMessageW(hwnd, WM_KEYDOWN, VK_F5, 0);
+            std::thread::sleep(std::time::Duration::from_millis(50));
+            PostMessageW(hwnd, WM_KEYUP, VK_F5, 0);
+        }
     }
 }
 
