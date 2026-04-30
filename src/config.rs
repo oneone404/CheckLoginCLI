@@ -12,18 +12,33 @@ static CONFIG: OnceLock<AppConfig> = OnceLock::new();
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NPHProfileCoords {
+    #[serde(default = "default_login_coords")]
     pub active: (i32, i32),
+    #[serde(default = "default_login_coords")]
     pub refresh: (i32, i32),
+    #[serde(default = "default_login_coords")]
     pub scroll1_start: (i32, i32),
+    #[serde(default = "default_login_coords")]
     pub scroll1_end: (i32, i32),
+    #[serde(default = "default_login_coords")]
     pub scroll2_start: (i32, i32),
+    #[serde(default = "default_login_coords")]
     pub scroll2_end: (i32, i32),
+    #[serde(default = "default_nph_ld1_9")]
     pub ld1_9: Vec<(i32, i32)>,
+    #[serde(default = "default_nph_ld10_15")]
     pub ld10_15: Vec<(i32, i32)>,
+    #[serde(default = "default_login_coords")]
     pub login_username: (i32, i32),
+    #[serde(default = "default_login_coords")]
     pub login_password: (i32, i32),
+    #[serde(default = "default_login_coords")]
     pub login_btn: (i32, i32),
 }
+
+fn default_nph_ld1_9() -> Vec<(i32, i32)> { vec![] }
+fn default_nph_ld10_15() -> Vec<(i32, i32)> { vec![] }
+fn default_login_coords() -> (i32, i32) { (0, 0) }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
