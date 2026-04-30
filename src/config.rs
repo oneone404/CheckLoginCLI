@@ -66,6 +66,8 @@ pub struct AppConfig {
     pub auto_sort_delay_sec: u64,
     #[serde(default = "default_auto_open_nph_enabled")]
     pub auto_open_nph_enabled: bool,
+    #[serde(default = "default_nph_batch_wait_sec")]
+    pub nph_batch_wait_sec: u64,
 
     // Login Coordinates
     #[serde(default = "default_login_username_x")]
@@ -111,6 +113,7 @@ fn default_auto_start_lds() -> Vec<i32> { Vec::new() }
 fn default_auto_sort_after_start() -> bool { true }
 fn default_auto_sort_delay_sec() -> u64 { 5 }
 fn default_auto_open_nph_enabled() -> bool { true }
+fn default_nph_batch_wait_sec() -> u64 { 60 }
 fn default_nph_active_x() -> i32 { 910 }
 fn default_nph_active_y() -> i32 { 125 }
 fn default_nph_refresh_x() -> i32 { 515 }
@@ -182,6 +185,7 @@ impl Default for AppConfig {
             auto_sort_after_start: true,
             auto_sort_delay_sec: 5,
             auto_open_nph_enabled: true,
+            nph_batch_wait_sec: 60,
             login_username_x: 480,
             login_username_y: 213,
             login_password_x: 480,

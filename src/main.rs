@@ -122,6 +122,7 @@ fn config_auto_start() {
     println!("  {}  {}", "[8]".cyan().bold(), "CHANGE NPH REFRESH COORDS".bold());
     println!("  {}  {}", "[9]".cyan().bold(), "SWITCH SCREEN PROFILE (MANUAL)".bold());
     println!("  {}  {}", "[10]".cyan().bold(), "TOGGLE AUTO-DETECT PROFILE".bold());
+    println!("  {}  {}", "[11]".cyan().bold(), "CHANGE NPH BATCH WAIT TIME".bold());
     println!("  {}  {}", "[0]".cyan().bold(), "GO BACK".bold());
     print!("\n{}", ">> CHOICE: ".yellow().bold());
     let _ = io::stdout().flush();
@@ -254,6 +255,18 @@ fn config_auto_start() {
             config.auto_detect_profile = !config.auto_detect_profile;
             log_success(-1, &format!("AUTO-DETECT PROFILE: {}", if config.auto_detect_profile { "ON" } else { "OFF" }));
             save_config(&config);
+            pause_and_return();
+        }
+        11 => {
+            print!("{}", "ENTER BATCH WAIT TIME IN SECONDS (DEFAULT 60): ".bold());
+            let _ = io::stdout().flush();
+            let mut wait_input = String::new();
+            let _ = io::stdin().read_line(&mut wait_input);
+            if let Ok(wait) = wait_input.trim().parse::<u64>() {
+                config.nph_batch_wait_sec = wait;
+                log_success(-1, &format!("NPH BATCH WAIT SET TO: {} SEC", config.nph_batch_wait_sec));
+                save_config(&config);
+            }
             pause_and_return();
         }
         _ => {}
@@ -491,9 +504,9 @@ fn run_nph_activation() {
             std::thread::sleep(Duration::from_millis(500));
         }
 
-        log_system("STEP 10: WAITING 60 SECONDS FOR GAMES TO INITIALIZE...");
-        for i in (1..=60).rev() {
-            print!("\r{}", format!("[SYSTEM] ... {} SECONDS REMAINING", i).bold().yellow());
+        log_system(&format!("STEP 10: WAITING {} SECONDS FOR GAMES TO INITIALIZE...", config.nph_batch_wait_sec));
+        for i in (1..=config.nph_batch_wait_sec).rev() {
+            print!("\r{}", format!("WAITING... {}S REMAINING   ", i).yellow().bold());
             let _ = io::stdout().flush();
             std::thread::sleep(Duration::from_secs(1));
         }
