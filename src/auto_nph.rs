@@ -202,23 +202,25 @@ mod win32 {
 
     pub fn click_relative(hwnd: isize, x: i32, y: i32) {
         if hwnd == 0 { return; }
+        let child_hwnd = get_child_window(hwnd);
+        
         unsafe {
-            // Get current mouse position to return later
-            let mut original_pt = Point { x: 0, y: 0 };
-            GetCursorPos(&mut original_pt);
-
-            // Convert relative (client) to screen coordinates
-            let mut target_pt = Point { x, y };
-            ClientToScreen(hwnd, &mut target_pt);
-
-            // Move, Click, and Move Back (Flash Click)
-            SetCursorPos(target_pt.x, target_pt.y);
-            mouse_event(0x0002, 0, 0, 0, 0); // MOUSEEVENTF_LEFTDOWN
-            std::thread::sleep(std::time::Duration::from_millis(10));
-            mouse_event(0x0004, 0, 0, 0, 0); // MOUSEEVENTF_LEFTUP
+            let lparam = ((y as isize) << 16) | (x as isize);
             
-            // Return to original position instantly
-            SetCursorPos(original_pt.x, original_pt.y);
+            // Send to parent
+            SendMessageW(hwnd, WM_MOUSEMOVE, 0, lparam);
+            SendMessageW(hwnd, WM_ACTIVATE, WA_ACTIVATE, 0);
+            PostMessageW(hwnd, WM_LBUTTONDOWN, 1, lparam);
+            std::thread::sleep(std::time::Duration::from_millis(30));
+            PostMessageW(hwnd, WM_LBUTTONUP, 0, lparam);
+
+            // If there's a child (like in Chrome/Electron), send to it too
+            if child_hwnd != 0 && child_hwnd != hwnd {
+                SendMessageW(child_hwnd, WM_MOUSEMOVE, 0, lparam);
+                PostMessageW(child_hwnd, WM_LBUTTONDOWN, 1, lparam);
+                std::thread::sleep(std::time::Duration::from_millis(30));
+                PostMessageW(child_hwnd, WM_LBUTTONUP, 0, lparam);
+            }
         }
     }
 
