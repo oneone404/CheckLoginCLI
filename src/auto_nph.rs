@@ -5,7 +5,7 @@ use crate::config::get_config;
 use crate::utils::{log_system, log_error, log_success, clear_screen, pause_and_return};
 
 #[cfg(windows)]
-mod win32 {
+pub mod win32 {
     const SW_RESTORE: i32 = 9;
     const MOUSEEVENTF_LEFTDOWN: u32 = 0x0002;
     const MOUSEEVENTF_LEFTUP: u32 = 0x0004;
