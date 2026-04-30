@@ -449,7 +449,7 @@ fn run_nph_activation() {
         log_system(&format!("STEP 6: CLICKING REFRESH BUTTON AT ({}, {})...", config.nph_refresh_x, config.nph_refresh_y));
         click_relative(hwnd, config.nph_refresh_x, config.nph_refresh_y);
         
-        log_system("STEP 7: WAITING 5 SECONDS TO TEST SCROLL...");
+        log_system("STEP 7: WAITING 5 SECONDS TO SCROLL...");
         for i in (1..=5).rev() {
             print!("\r{}", format!("[SYSTEM] ... {} SECONDS REMAINING", i).bold().yellow());
             let _ = io::stdout().flush();
@@ -457,11 +457,21 @@ fn run_nph_activation() {
         }
         println!();
 
-        log_system("STEP 8: PERFORMING TEST DRAG (SCROLL)...");
-        // Example drag: from right side (scrollbar area) down
+        log_system("STEP 8: PERFORMING SCROLL (MOUSE DRAG)...");
         crate::auto_nph::drag_relative(hwnd, 980, 200, 980, 600);
         
-        log_success(-1, "NPH ACTIVATED, REFRESHED AND DRAGGED SUCCESSFULLY!");
+        log_system("STEP 9: WAITING 5 SECONDS FOR LOGIC 1 (OPEN GAME)...");
+        for i in (1..=5).rev() {
+            print!("\r{}", format!("[SYSTEM] ... {} SECONDS REMAINING", i).bold().yellow());
+            let _ = io::stdout().flush();
+            std::thread::sleep(Duration::from_secs(1));
+        }
+        println!();
+
+        log_system("STEP 10: EXECUTING LOGIC 1 (OPENING GAMES FOR ALL LDS)...");
+        crate::auto_nph::run_auto_config_nph(false); // Call Open Game logic
+        
+        log_success(-1, "NPH ACTIVATED, REFRESHED, SCROLLED AND GAMES OPENED SUCCESSFULLY!");
     } else {
         log_error(-1, "NPH WINDOW NOT FOUND! PLEASE ENSURE NPHTOOL IS RUNNING.");
     }
