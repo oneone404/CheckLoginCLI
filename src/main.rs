@@ -71,7 +71,7 @@ fn run_auto_start_feature(exit_after: bool) {
 
     if config.auto_open_nph_enabled {
         log_system("OPENING NPH TOOL...");
-        let tool_path = "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\NPHTool\\NPHTool.exe";
+        let tool_path = "C:\\Program Files\\NPHTool\\tool.exe";
         let _ = silent_command("cmd")
             .args(["/c", "start", "", tool_path])
             .output();
