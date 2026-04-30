@@ -463,12 +463,10 @@ fn run_nph_activation() {
         std::thread::sleep(Duration::from_secs(5));
 
         log_system("STEP 9: OPENING GAMES FOR LD 1-9...");
+        let y_coords_1_9 = [35, 95, 155, 220, 280, 340, 400, 465, 525];
         for i in 1..=9 {
-            let (x, y) = if i == 1 {
-                (280, 35)
-            } else {
-                (305, 95 + (i - 2) * 60)
-            };
+            let x = if i == 1 { 280 } else { 305 };
+            let y = y_coords_1_9[i as usize - 1];
             log_system(&format!("OPENING GAME FOR LD {} AT ({}, {})...", i, x, y));
             click_relative(hwnd, x, y);
             std::thread::sleep(Duration::from_millis(500));
@@ -487,8 +485,10 @@ fn run_nph_activation() {
         std::thread::sleep(Duration::from_secs(5));
 
         log_system("STEP 12: OPENING GAMES FOR LD 10-15...");
+        let y_coords_10_15 = [200, 265, 325, 385, 450, 505];
         for i in 10..=15 {
-            let (x, y) = (305, 205 + (i - 10) * 60);
+            let x = 305;
+            let y = y_coords_10_15[i as usize - 10];
             log_system(&format!("OPENING GAME FOR LD {} AT ({}, {})...", i, x, y));
             click_relative(hwnd, x, y);
             std::thread::sleep(Duration::from_millis(500));
