@@ -10,6 +10,18 @@ const DEFAULT_RESTART_MINUTES: u64 = 240;
 
 static CONFIG: OnceLock<AppConfig> = OnceLock::new();
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct NPHProfileCoords {
+    pub active: (i32, i32),
+    pub refresh: (i32, i32),
+    pub scroll1_start: (i32, i32),
+    pub scroll1_end: (i32, i32),
+    pub scroll2_start: (i32, i32),
+    pub scroll2_end: (i32, i32),
+    pub ld1_9: Vec<(i32, i32)>,
+    pub ld10_15: Vec<(i32, i32)>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
     #[serde(default = "default_restart_minutes")]
@@ -62,6 +74,10 @@ pub struct AppConfig {
     pub nph_refresh_y: i32,
     #[serde(default = "default_nph_profile")]
     pub nph_profile: String,
+    #[serde(default = "default_nph_coords_4k")]
+    pub nph_coords_4k: NPHProfileCoords,
+    #[serde(default = "default_nph_coords_fhd")]
+    pub nph_coords_fhd: NPHProfileCoords,
 }
 
 fn default_restart_minutes() -> u64 { DEFAULT_RESTART_MINUTES }
@@ -80,6 +96,42 @@ fn default_nph_active_y() -> i32 { 125 }
 fn default_nph_refresh_x() -> i32 { 515 }
 fn default_nph_refresh_y() -> i32 { 320 }
 fn default_nph_profile() -> String { "FULLHD".to_string() }
+
+fn default_nph_coords_4k() -> NPHProfileCoords {
+    NPHProfileCoords {
+        active: (910, 125),
+        refresh: (515, 320),
+        scroll1_start: (990, 20),
+        scroll1_end: (990, 185),
+        scroll2_start: (990, 185),
+        scroll2_end: (990, 325),
+        ld1_9: vec![
+            (280, 35), (305, 95), (305, 155), (305, 220), 
+            (305, 285), (305, 350), (305, 420), (305, 480), (305, 545)
+        ],
+        ld10_15: vec![
+            (305, 210), (305, 275), (305, 345), (305, 405), (305, 470), (305, 535)
+        ],
+    }
+}
+
+fn default_nph_coords_fhd() -> NPHProfileCoords {
+    NPHProfileCoords {
+        active: (910, 125),
+        refresh: (515, 320),
+        scroll1_start: (990, 20),
+        scroll1_end: (990, 185),
+        scroll2_start: (990, 190),
+        scroll2_end: (990, 330),
+        ld1_9: vec![
+            (286, 29), (304, 92), (308, 155), (308, 220), 
+            (308, 286), (309, 351), (305, 417), (308, 483), (308, 545)
+        ],
+        ld10_15: vec![
+            (307, 202), (304, 270), (308, 334), (308, 399), (310, 465), (306, 529)
+        ],
+    }
+}
 
 fn default_login_username_x() -> i32 { 480 }
 fn default_login_username_y() -> i32 { 213 }
@@ -115,6 +167,8 @@ impl Default for AppConfig {
             nph_refresh_x: 515,
             nph_refresh_y: 320,
             nph_profile: "FULLHD".to_string(),
+            nph_coords_4k: default_nph_coords_4k(),
+            nph_coords_fhd: default_nph_coords_fhd(),
         }
     }
 }

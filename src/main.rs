@@ -418,48 +418,6 @@ fn run_power_options() {
     }
 }
 
-struct NPHCoords {
-    active: (i32, i32),
-    refresh: (i32, i32),
-    scroll1: ((i32, i32), (i32, i32)),
-    scroll2: ((i32, i32), (i32, i32)),
-    ld1_9: [(i32, i32); 9],
-    ld10_15: [(i32, i32); 6],
-}
-
-fn get_coords_by_profile(profile: &str) -> NPHCoords {
-    if profile == "4K" {
-        NPHCoords {
-            active: (910, 125),
-            refresh: (515, 320),
-            scroll1: ((990, 20), (990, 185)),
-            scroll2: ((990, 185), (990, 325)),
-            ld1_9: [
-                (280, 35), (305, 95), (305, 155), (305, 220), 
-                (305, 285), (305, 350), (305, 420), (305, 480), (305, 545)
-            ],
-            ld10_15: [
-                (305, 210), (305, 275), (305, 345), (305, 405), (305, 470), (305, 535)
-            ],
-        }
-    } else {
-        // Default FULLHD
-        NPHCoords {
-            active: (910, 125),
-            refresh: (515, 320),
-            scroll1: ((990, 20), (990, 185)),
-            scroll2: ((990, 190), (990, 330)),
-            ld1_9: [
-                (286, 29), (304, 92), (308, 155), (308, 220), 
-                (308, 286), (309, 351), (305, 417), (308, 483), (308, 545)
-            ],
-            ld10_15: [
-                (307, 202), (304, 270), (308, 334), (308, 399), (310, 465), (306, 529)
-            ],
-        }
-    }
-}
-
 fn run_nph_activation() {
     log_system("STEP 1: STARTING NPH TOOL PROCESS...");
     let tool_path = "C:\\Program Files\\NPHTool\\tool.exe";
@@ -489,7 +447,7 @@ fn run_nph_activation() {
         std::thread::sleep(Duration::from_millis(500));
         
         let config = get_config();
-        let coords = get_coords_by_profile(&config.nph_profile);
+        let coords = if config.nph_profile == "4K" { &config.nph_coords_4k } else { &config.nph_coords_fhd };
 
         log_system(&format!("STEP 4: CLICKING ACTIVE BUTTON AT ({}, {})...", coords.active.0, coords.active.1));
         click_relative(hwnd, coords.active.0, coords.active.1);
@@ -514,8 +472,8 @@ fn run_nph_activation() {
         }
         println!();
 
-        log_system(&format!("STEP 8: SCROLLING DOWN ({}, {}) TO ({}, {})...", coords.scroll1.0.0, coords.scroll1.0.1, coords.scroll1.1.0, coords.scroll1.1.1));
-        drag_relative(hwnd, coords.scroll1.0.0, coords.scroll1.0.1, coords.scroll1.1.0, coords.scroll1.1.1);
+        log_system(&format!("STEP 8: SCROLLING DOWN ({}, {}) TO ({}, {})...", coords.scroll1_start.0, coords.scroll1_start.1, coords.scroll1_end.0, coords.scroll1_end.1));
+        drag_relative(hwnd, coords.scroll1_start.0, coords.scroll1_start.1, coords.scroll1_end.0, coords.scroll1_end.1);
         std::thread::sleep(Duration::from_secs(5));
 
         log_system("STEP 9: OPENING GAMES FOR LD 1-9...");
@@ -533,8 +491,8 @@ fn run_nph_activation() {
         }
         println!();
 
-        log_system(&format!("STEP 11: SCROLLING DOWN ({}, {}) TO ({}, {})...", coords.scroll2.0.0, coords.scroll2.0.1, coords.scroll2.1.0, coords.scroll2.1.1));
-        drag_relative(hwnd, coords.scroll2.0.0, coords.scroll2.0.1, coords.scroll2.1.0, coords.scroll2.1.1);
+        log_system(&format!("STEP 11: SCROLLING DOWN ({}, {}) TO ({}, {})...", coords.scroll2_start.0, coords.scroll2_start.1, coords.scroll2_end.0, coords.scroll2_end.1));
+        drag_relative(hwnd, coords.scroll2_start.0, coords.scroll2_start.1, coords.scroll2_end.0, coords.scroll2_end.1);
         std::thread::sleep(Duration::from_secs(5));
 
         log_system("STEP 12: OPENING GAMES FOR LD 10-15...");
