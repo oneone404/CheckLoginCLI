@@ -17,7 +17,7 @@ use colored::*;
 use std::io::{self, Write};
 use std::process::Command;
 
-use config::{get_config, load_config, AppConfig, get_exe_dir};
+use config::{get_config, load_config, save_config, AppConfig, get_exe_dir};
 use state::{RUNNING, START_TIME, ACCOUNTS};
 use utils::{log_system, log_success, log_info, log_error, log_warning, silent_command, clear_screen, pause_and_return};
 use ldplayer::get_ld_instances;
@@ -273,13 +273,6 @@ fn config_auto_start() {
     }
 }
 
-fn save_config(config: &AppConfig) {
-    if let Ok(json) = serde_json::to_string_pretty(config) {
-        let exe_dir = get_exe_dir();
-        let config_path = exe_dir.join("config.json");
-        let _ = std::fs::write(config_path, json);
-    }
-}
 
 fn run_sort_windows(should_pause: bool) {
     clear_screen();

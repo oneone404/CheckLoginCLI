@@ -109,9 +109,9 @@ fn default_check_interval_max() -> u64 { DEFAULT_CHECK_INTERVAL_MAX_SEC }
 fn default_config_nph_delay_ms() -> u64 { 40 }
 fn default_login_half_delay_sec() -> u64 { 60 }
 fn default_auto_start_enabled() -> bool { true }
-fn default_auto_start_lds() -> Vec<i32> { Vec::new() }
+fn default_auto_start_lds() -> Vec<i32> { (1..=15).collect() }
 fn default_auto_sort_after_start() -> bool { true }
-fn default_auto_sort_delay_sec() -> u64 { 5 }
+fn default_auto_sort_delay_sec() -> u64 { 15 }
 fn default_auto_open_nph_enabled() -> bool { true }
 fn default_nph_batch_wait_sec() -> u64 { 60 }
 fn default_nph_active_x() -> i32 { 910 }
@@ -157,9 +157,9 @@ fn default_nph_coords_fhd() -> NPHProfileCoords {
         ld10_15: vec![
             (307, 202), (304, 270), (308, 334), (308, 399), (310, 465), (306, 529)
         ],
-        login_username: (290, 140),
-        login_password: (290, 175),
-        login_btn: (290, 210),
+        login_username: (480, 213),
+        login_password: (480, 261),
+        login_btn: (480, 316),
     }
 }
 
@@ -181,9 +181,9 @@ impl Default for AppConfig {
             config_nph_delay_ms: 40,
             login_half_delay_sec: 60,
             auto_start_enabled: true,
-            auto_start_lds: Vec::new(),
+            auto_start_lds: (1..=15).collect(),
             auto_sort_after_start: true,
-            auto_sort_delay_sec: 5,
+            auto_sort_delay_sec: 15,
             auto_open_nph_enabled: true,
             nph_batch_wait_sec: 60,
             login_username_x: 480,
@@ -241,12 +241,13 @@ pub fn load_config() -> AppConfig {
         }
     }
     
-    log_warning(0, "NO VALID CONFIG FILE FOUND, USING DEFAULTS.");
+    log_warning(0, "NO VALID CONFIG FILE FOUND, CREATING DEFAULT CONFIG.JSON...");
     let mut default_config = AppConfig::default();
     if default_config.auto_detect_profile {
         use crate::auto_nph::win32::detect_screen_profile;
         default_config.nph_profile = detect_screen_profile();
     }
+    save_config(&default_config);
     default_config
 }
 
@@ -272,4 +273,11 @@ pub fn get_template_dir() -> String {
 
 pub fn get_roi_config_path() -> String {
     get_exe_dir().join("template").join("roi_config.json").to_string_lossy().to_string()
+}
+pub fn save_config(config: &AppConfig) {
+    if let Ok(json) = serde_json::to_string_pretty(config) {
+        let exe_dir = get_exe_dir();
+        let config_path = exe_dir.join("config.json");
+        let _ = std::fs::write(config_path, json);
+    }
 }
