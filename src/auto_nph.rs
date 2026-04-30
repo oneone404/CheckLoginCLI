@@ -27,8 +27,12 @@ mod win32 {
         fn GetCursorPos(lpPoint: *mut Point) -> i32;
         fn ScreenToClient(hWnd: isize, lpPoint: *mut Point) -> i32;
         fn ClientToScreen(hWnd: isize, lpPoint: *mut Point) -> i32;
+        fn PostMessageW(hWnd: isize, Msg: u32, wParam: usize, lParam: isize) -> i32;
     }
  
+    const WM_LBUTTONDOWN: u32 = 0x0201;
+    const WM_LBUTTONUP: u32 = 0x0202;
+
     #[repr(C)]
     pub struct Point {
         pub x: i32,
@@ -176,13 +180,17 @@ mod win32 {
     }
 
     pub fn click_relative(hwnd: isize, x: i32, y: i32) {
+        if hwnd == 0 { return; }
         unsafe {
-            let mut pt = Point { x, y };
-            ClientToScreen(hwnd, &mut pt);
-            SetCursorPos(pt.x, pt.y);
-            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
-            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+            let lparam = ((y as isize) << 16) | (x as isize);
+            PostMessageW(hwnd, WM_LBUTTONDOWN, 1, lparam);
+            std::thread::sleep(Duration::from_millis(10));
+            PostMessageW(hwnd, WM_LBUTTONUP, 0, lparam);
         }
+    }
+
+    pub fn click_bg(hwnd: isize, x: i32, y: i32) {
+        click_relative(hwnd, x, y);
     }
 }
 
@@ -243,7 +251,14 @@ pub fn run_auto_config_nph() {
             return;
         }
 
-        log_success(0, "NPH WINDOW FOUND AND FOCUSED");
+        log_success(0, "NPH WINDOW FOUND");
+        let hwnd = win32::get_hwnd_by_title("NPH");
+        if hwnd == 0 {
+             log_error(0, "COULD NOT GET WINDOW HANDLE!");
+             pause_and_return();
+             return;
+        }
+
         std::thread::sleep(Duration::from_millis(300));
 
         let config = get_config();
@@ -252,23 +267,23 @@ pub fn run_auto_config_nph() {
         for (i, clicks) in NPH_CLICK_DATA.iter().enumerate() {
             let ld_num = (i + 1) as i32;
 
-            win32::click(clicks[0].0, clicks[0].1);
+            win32::click_bg(hwnd, clicks[0].0, clicks[0].1);
             std::thread::sleep(Duration::from_millis(delay_ms));
 
-            win32::click(clicks[1].0, clicks[1].1);
+            win32::click_bg(hwnd, clicks[1].0, clicks[1].1);
             std::thread::sleep(Duration::from_millis(delay_ms));
 
-            win32::click(clicks[2].0, clicks[2].1);
+            win32::click_bg(hwnd, clicks[2].0, clicks[2].1);
             std::thread::sleep(Duration::from_millis(delay_ms));
 
             let loc_y = if is_xanh_la { clicks[3].1 - 150 } else { clicks[3].1 };
-            win32::click(clicks[3].0, loc_y);
+            win32::click_bg(hwnd, clicks[3].0, loc_y);
             std::thread::sleep(Duration::from_millis(delay_ms));
 
-            win32::click(clicks[4].0 + 100, clicks[4].1);
+            win32::click_bg(hwnd, clicks[4].0 + 100, clicks[4].1);
             std::thread::sleep(Duration::from_millis(delay_ms));
 
-            log_success(ld_num, "Done");
+            log_success(ld_num, "DONE");
         }
 
         println!();
@@ -305,7 +320,14 @@ pub fn run_login_nph() {
             return;
         }
 
-        log_success(0, "NPH WINDOW FOUND AND FOCUSED");
+        log_success(0, "NPH WINDOW FOUND");
+        let hwnd = win32::get_hwnd_by_title("NPH");
+        if hwnd == 0 {
+             log_error(0, "COULD NOT GET WINDOW HANDLE!");
+             pause_and_return();
+             return;
+        }
+
         std::thread::sleep(Duration::from_millis(300));
 
         let config = get_config();
@@ -314,10 +336,10 @@ pub fn run_login_nph() {
         for (i, click) in NPH_LOGIN_DATA.iter().take(count).enumerate() {
             let ld_num = (i + 1) as i32;
 
-            win32::click(click.0, click.1);
+            win32::click_bg(hwnd, click.0, click.1);
             std::thread::sleep(Duration::from_millis(delay_ms));
 
-            log_success(ld_num, "LOGIN BUTTON CLICKED");
+            log_success(ld_num, "LOGIN BUTTON CLICKED (BACKGROUND)");
         }
 
         println!();
