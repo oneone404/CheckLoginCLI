@@ -463,13 +463,12 @@ fn run_nph_activation() {
         std::thread::sleep(Duration::from_secs(5));
 
         log_system("STEP 9: OPENING GAMES FOR LD 1-9...");
-        for i in 1..=9 {
-            let (x, y) = if i == 1 {
-                (280, 35)
-            } else {
-                (305, 95 + (i - 2) * 60)
-            };
-            log_system(&format!("OPENING GAME FOR LD {} AT ({}, {})...", i, x, y));
+        let ld1_9_coords = [
+            (280, 35), (305, 95), (305, 155), (305, 220), 
+            (305, 285), (305, 350), (305, 420), (305, 480), (305, 545)
+        ];
+        for (i, &(x, y)) in ld1_9_coords.iter().enumerate() {
+            log_system(&format!("OPENING GAME FOR LD {} AT ({}, {})...", i + 1, x, y));
             click_relative(hwnd, x, y);
             std::thread::sleep(Duration::from_millis(500));
         }
@@ -487,9 +486,11 @@ fn run_nph_activation() {
         std::thread::sleep(Duration::from_secs(5));
 
         log_system("STEP 12: OPENING GAMES FOR LD 10-15...");
-        for i in 10..=15 {
-            let (x, y) = (305, 205 + (i - 10) * 60);
-            log_system(&format!("OPENING GAME FOR LD {} AT ({}, {})...", i, x, y));
+        let ld10_15_coords = [
+            (305, 210), (305, 275), (305, 345), (305, 405), (305, 470), (305, 535)
+        ];
+        for (i, &(x, y)) in ld10_15_coords.iter().enumerate() {
+            log_system(&format!("OPENING GAME FOR LD {} AT ({}, {})...", i + 10, x, y));
             click_relative(hwnd, x, y);
             std::thread::sleep(Duration::from_millis(500));
         }
