@@ -104,6 +104,7 @@ fn config_auto_start() {
     println!("{}", format!("AUTO-OPEN NPH TOOL: {}", open_nph).bold());
     println!("{}", format!("NPH TOOL STATUS (PATH): {}", nph_status).bold());
     println!("{}", format!("NPH ACTIVE COORDS: ({}, {})", config.nph_active_x, config.nph_active_y).bold());
+    println!("{}", format!("NPH REFRESH COORDS: ({}, {})", config.nph_refresh_x, config.nph_refresh_y).bold());
     println!("{}", format!("AUTO-SORT DELAY: {} SEC", config.auto_sort_delay_sec).bold());
     println!("{}", format!("SELECTED LDS: {:?}", config.auto_start_lds).bold());
     println!("{}", format!("SORT COLUMNS: {}", config.sort_columns).bold());
@@ -116,6 +117,7 @@ fn config_auto_start() {
     println!("  {}  {}", "[5]".cyan().bold(), "CHANGE LD LIST".bold());
     println!("  {}  {}", "[6]".cyan().bold(), "CHANGE SORT COLUMNS".bold());
     println!("  {}  {}", "[7]".cyan().bold(), "CHANGE NPH ACTIVE COORDS".bold());
+    println!("  {}  {}", "[8]".cyan().bold(), "CHANGE NPH REFRESH COORDS".bold());
     println!("  {}  {}", "[0]".cyan().bold(), "GO BACK".bold());
     print!("\n{}", ">> CHOICE: ".yellow().bold());
     let _ = io::stdout().flush();
@@ -211,6 +213,25 @@ fn config_auto_start() {
                 config.nph_active_x = x;
                 config.nph_active_y = y;
                 log_success(-1, &format!("NPH ACTIVE COORDS SET TO: ({}, {})", x, y));
+                save_config(&config);
+            }
+            pause_and_return();
+        }
+        8 => {
+            print!("{}", "ENTER NPH REFRESH X: ".bold());
+            let _ = io::stdout().flush();
+            let mut x_input = String::new();
+            let _ = io::stdin().read_line(&mut x_input);
+            
+            print!("{}", "ENTER NPH REFRESH Y: ".bold());
+            let _ = io::stdout().flush();
+            let mut y_input = String::new();
+            let _ = io::stdin().read_line(&mut y_input);
+            
+            if let (Ok(x), Ok(y)) = (x_input.trim().parse::<i32>(), y_input.trim().parse::<i32>()) {
+                config.nph_refresh_x = x;
+                config.nph_refresh_y = y;
+                log_success(-1, &format!("NPH REFRESH COORDS SET TO: ({}, {})", x, y));
                 save_config(&config);
             }
             pause_and_return();
@@ -414,7 +435,14 @@ fn run_nph_activation() {
         let config = get_config();
         log_system(&format!("STEP 4: CLICKING ACTIVE BUTTON AT ({}, {})...", config.nph_active_x, config.nph_active_y));
         click_relative(hwnd, config.nph_active_x, config.nph_active_y);
-        log_success(-1, "NPH ACTIVATED SUCCESSFULLY!");
+        
+        log_system("STEP 5: WAITING 5 SECONDS FOR REFRESH...");
+        std::thread::sleep(Duration::from_secs(5));
+        
+        log_system(&format!("STEP 6: CLICKING REFRESH BUTTON AT ({}, {})...", config.nph_refresh_x, config.nph_refresh_y));
+        click_relative(hwnd, config.nph_refresh_x, config.nph_refresh_y);
+        
+        log_success(-1, "NPH ACTIVATED AND REFRESHED SUCCESSFULLY!");
     } else {
         log_error(-1, "NPH WINDOW NOT FOUND! PLEASE ENSURE NPHTOOL IS RUNNING.");
     }
