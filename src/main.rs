@@ -587,11 +587,25 @@ fn run_mouse_drag_test() {
 }
 
 fn show_menu() -> u8 {
+    let config = get_config();
     println!();
     println!("{}", "========================================================".bright_cyan().bold());
-    println!("{}  {}", "  ".on_bright_cyan(), " TOOL CLI V1.2".bright_white().bold());
+    println!("{}", "               LDPLAYER MANAGEMENT SUITE                ".bright_white().bold());
     println!("{}", "========================================================".bright_cyan().bold());
-    println!();
+    
+    // DASHBOARD AREA
+    let auto_start_status = if config.auto_start_enabled { "ON".green() } else { "OFF".red() };
+    let nph_auto_status = if config.auto_open_nph_enabled { "ON".green() } else { "OFF".red() };
+    let profile_status = if config.nph_profile == "4K" { "4K".magenta() } else { "FULLHD".blue() };
+    
+    println!("  {} {} | {} {} | {} {} | {} {}", 
+        "AUTO START:".bold(), auto_start_status,
+        "OPEN NPH:".bold(), nph_auto_status,
+        "PROFILE:".bold(), profile_status,
+        "CONCURRENT:".bold(), config.max_concurrent.to_string().yellow()
+    );
+    println!("{}", "--------------------------------------------------------".bright_cyan());
+
     println!("  {}  {}", "[1]".cyan().bold(), "CHECK LOGIN".bold());
     println!("  {}  {}", "[2]".cyan().bold(), "AUTO CONFIG NPH".bold());
     println!("  {}  {}", "[3]".cyan().bold(), "AUTO LOGIN NPH".bold());
@@ -599,8 +613,8 @@ fn show_menu() -> u8 {
     println!("  {}  {}", "[5]".cyan().bold(), "SETTINGS (AUTO START)".bold());
     println!("  {}  {}", "[6]".cyan().bold(), "CLOSE ALL LD & NPH".bold());
     println!("  {}  {}", "[7]".cyan().bold(), "POWER OPTIONS (SHUT/RESTART)".bold());
-    println!("  {}  {}", "[8]".cyan().bold(), "MOUSE POSITION TOOL (RELATIVE)".bold());
-    println!("  {}  {}", "[9]".cyan().bold(), "AUTO RUN NPH TOOL".bold());
+    println!("  {}  {}", "[8]".cyan().bold(), "MOUSE POSITION TOOL (CLICK-TO-SAVE)".bold());
+    println!("  {}  {}", "[9]".cyan().bold(), "AUTO RUN NPH TOOL (12-STEPS)".bold());
     println!("  {}  {}", "[10]".cyan().bold(), "TEST MOUSE DRAG (SCROLL)".bold());
     println!("  {}  {}", "[0]".cyan().bold(), "EXIT...".bold());
     println!();
