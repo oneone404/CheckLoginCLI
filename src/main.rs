@@ -392,20 +392,29 @@ fn run_nph_activation() {
         .args(["/c", "start", "", tool_path])
         .output();
     
-    log_system("WAITING 5 SECONDS FOR NPH TO LOAD...");
-    std::thread::sleep(Duration::from_secs(5));
+    for i in (1..=5).rev() {
+        print!("\r{}", format!("[SYSTEM] WAITING {} SECONDS FOR NPH TO LOAD...   ", i).bold().yellow());
+        let _ = io::stdout().flush();
+        std::thread::sleep(Duration::from_secs(1));
+    }
+    println!();
     
     use crate::auto_nph::{find_and_focus, click_relative, get_hwnd_by_title};
-    if find_and_focus("NPH") {
-        let hwnd = get_hwnd_by_title("NPH");
-        if hwnd != 0 {
-            let config = get_config();
-            log_system(&format!("CLICKING NPH ACTIVE BUTTON AT ({}, {})...", config.nph_active_x, config.nph_active_y));
-            click_relative(hwnd, config.nph_active_x, config.nph_active_y);
-            log_success(-1, "NPH ACTIVATED!");
-        }
+    
+    // Try both "NPHTool" and "NPH"
+    let mut hwnd = get_hwnd_by_title("NPHTool");
+    if hwnd == 0 {
+        hwnd = get_hwnd_by_title("NPH");
+    }
+
+    if hwnd != 0 {
+        find_and_focus("NPH"); // This also focuses
+        let config = get_config();
+        log_system(&format!("CLICKING NPH ACTIVE BUTTON AT ({}, {})...", config.nph_active_x, config.nph_active_y));
+        click_relative(hwnd, config.nph_active_x, config.nph_active_y);
+        log_success(-1, "NPH ACTIVATED!");
     } else {
-        log_error(-1, "NPH WINDOW NOT FOUND!");
+        log_error(-1, "NPH WINDOW NOT FOUND! CHECK IF NPHTOOL IS OPEN.");
     }
 }
 
