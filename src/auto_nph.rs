@@ -29,6 +29,7 @@ mod win32 {
         fn ClientToScreen(hWnd: isize, lpPoint: *mut Point) -> i32;
         fn PostMessageW(hWnd: isize, Msg: u32, wParam: usize, lParam: isize) -> i32;
         fn SendMessageW(hWnd: isize, Msg: u32, wParam: usize, lParam: isize) -> isize;
+        fn EnumChildWindows(hWndParent: isize, lpEnumFunc: extern "system" fn(isize, isize) -> i32, lParam: isize) -> i32;
     }
  
     const WM_LBUTTONDOWN: u32 = 0x0201;
@@ -183,23 +184,43 @@ mod win32 {
         }
     }
 
+    pub fn get_child_window(parent_hwnd: isize) -> isize {
+        struct ChildData { hwnd: isize }
+        extern "system" fn child_callback(hwnd: isize, lparam: isize) -> i32 {
+            unsafe {
+                let data = &mut *(lparam as *mut ChildData);
+                data.hwnd = hwnd;
+                0 // Stop at first child
+            }
+        }
+        let mut data = ChildData { hwnd: 0 };
+        unsafe {
+            EnumChildWindows(parent_hwnd, child_callback, &mut data as *mut ChildData as isize);
+        }
+        data.hwnd
+    }
+
     pub fn click_relative(hwnd: isize, x: i32, y: i32) {
         if hwnd == 0 { return; }
+        let child_hwnd = get_child_window(hwnd);
+        
         unsafe {
             let lparam = ((y as isize) << 16) | (x as isize);
             
-            // 1. Move mouse to position
+            // Send to parent
             SendMessageW(hwnd, WM_MOUSEMOVE, 0, lparam);
-            
-            // 2. Activate window (optional but helps)
             SendMessageW(hwnd, WM_ACTIVATE, WA_ACTIVATE, 0);
-
-            // 3. Mouse Down
             PostMessageW(hwnd, WM_LBUTTONDOWN, 1, lparam);
             std::thread::sleep(std::time::Duration::from_millis(30));
-            
-            // 4. Mouse Up
             PostMessageW(hwnd, WM_LBUTTONUP, 0, lparam);
+
+            // If there's a child (like in Chrome/Electron), send to it too
+            if child_hwnd != 0 && child_hwnd != hwnd {
+                SendMessageW(child_hwnd, WM_MOUSEMOVE, 0, lparam);
+                PostMessageW(child_hwnd, WM_LBUTTONDOWN, 1, lparam);
+                std::thread::sleep(std::time::Duration::from_millis(30));
+                PostMessageW(child_hwnd, WM_LBUTTONUP, 0, lparam);
+            }
         }
     }
 
