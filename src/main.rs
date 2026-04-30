@@ -69,9 +69,16 @@ fn run_auto_start_feature(exit_after: bool) {
     }
     log_system("COMMANDS SENT TO ALL LDS.");
 
+    if config.auto_open_nph_enabled {
+        log_system("OPENING NPH TOOL (TOOL.EXE)...");
+        let _ = silent_command("cmd")
+            .args(["/c", "start", "tool.exe"])
+            .output();
+    }
+
     if config.auto_sort_after_start {
-        // Wait a bit for windows to appear
-        std::thread::sleep(Duration::from_millis(2000));
+        log_system(&format!("WAITING {} SECONDS BEFORE SORTING...", config.auto_sort_delay_sec));
+        std::thread::sleep(Duration::from_secs(config.auto_sort_delay_sec));
         run_sort_windows(false);
     }
     
@@ -90,17 +97,22 @@ fn config_auto_start() {
     let mut config = load_config(); // Read fresh config
     let status = if config.auto_start_enabled { "ENABLED".green().bold() } else { "DISABLED".red().bold() };
     let sort_after = if config.auto_sort_after_start { "YES".green().bold() } else { "NO".red().bold() };
+    let open_nph = if config.auto_open_nph_enabled { "YES".green().bold() } else { "NO".red().bold() };
     
     println!("{}", format!("AUTO-START: {}", status).bold());
     println!("{}", format!("AUTO-SORT AFTER START: {}", sort_after).bold());
+    println!("{}", format!("AUTO-OPEN NPH TOOL: {}", open_nph).bold());
+    println!("{}", format!("AUTO-SORT DELAY: {} SEC", config.auto_sort_delay_sec).bold());
     println!("{}", format!("SELECTED LDS: {:?}", config.auto_start_lds).bold());
     println!("{}", format!("SORT COLUMNS: {}", config.sort_columns).bold());
     println!();
     println!("{}", "WHAT DO YOU WANT TO DO?".bold());
     println!("  {}  {}", "[1]".cyan().bold(), "TOGGLE AUTO-START WITH WINDOWS".bold());
     println!("  {}  {}", "[2]".cyan().bold(), "TOGGLE AUTO-SORT AFTER START".bold());
-    println!("  {}  {}", "[3]".cyan().bold(), "CHANGE LD LIST".bold());
-    println!("  {}  {}", "[4]".cyan().bold(), "CHANGE SORT COLUMNS".bold());
+    println!("  {}  {}", "[3]".cyan().bold(), "TOGGLE AUTO-OPEN NPH TOOL".bold());
+    println!("  {}  {}", "[4]".cyan().bold(), "CHANGE AUTO-SORT DELAY".bold());
+    println!("  {}  {}", "[5]".cyan().bold(), "CHANGE LD LIST".bold());
+    println!("  {}  {}", "[6]".cyan().bold(), "CHANGE SORT COLUMNS".bold());
     println!("  {}  {}", "[0]".cyan().bold(), "GO BACK".bold());
     print!("\n{}", ">> CHOICE: ".yellow().bold());
     let _ = io::stdout().flush();
@@ -135,6 +147,24 @@ fn config_auto_start() {
             pause_and_return();
         }
         3 => {
+            config.auto_open_nph_enabled = !config.auto_open_nph_enabled;
+            log_success(-1, &format!("AUTO-OPEN NPH TOOL: {}", if config.auto_open_nph_enabled { "ON" } else { "OFF" }));
+            save_config(&config);
+            pause_and_return();
+        }
+        4 => {
+            print!("{}", "ENTER DELAY IN SECONDS (DEFAULT 5): ".bold());
+            let _ = io::stdout().flush();
+            let mut delay_input = String::new();
+            let _ = io::stdin().read_line(&mut delay_input);
+            if let Ok(delay) = delay_input.trim().parse::<u64>() {
+                config.auto_sort_delay_sec = delay;
+                log_success(-1, &format!("AUTO-SORT DELAY SET TO: {} SEC", config.auto_sort_delay_sec));
+                save_config(&config);
+            }
+            pause_and_return();
+        }
+        5 => {
             print!("{}", "ENTER LD INDICES (E.G. 1,2,5 OR 1 2 5): ".bold());
             let _ = io::stdout().flush();
             let mut lds_input = String::new();
@@ -151,7 +181,7 @@ fn config_auto_start() {
             save_config(&config);
             pause_and_return();
         }
-        4 => {
+        6 => {
             print!("{}", "ENTER NUMBER OF COLUMNS (DEFAULT 5): ".bold());
             let _ = io::stdout().flush();
             let mut col_input = String::new();

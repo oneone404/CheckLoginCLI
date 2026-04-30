@@ -32,6 +32,10 @@ pub struct AppConfig {
     pub auto_start_lds: Vec<i32>,
     #[serde(default = "default_auto_sort_after_start")]
     pub auto_sort_after_start: bool,
+    #[serde(default = "default_auto_sort_delay_sec")]
+    pub auto_sort_delay_sec: u64,
+    #[serde(default = "default_auto_open_nph_enabled")]
+    pub auto_open_nph_enabled: bool,
 
     // Login Coordinates
     #[serde(default = "default_login_username_x")]
@@ -59,6 +63,8 @@ fn default_login_half_delay_sec() -> u64 { 60 }
 fn default_auto_start_enabled() -> bool { false }
 fn default_auto_start_lds() -> Vec<i32> { Vec::new() }
 fn default_auto_sort_after_start() -> bool { false }
+fn default_auto_sort_delay_sec() -> u64 { 5 }
+fn default_auto_open_nph_enabled() -> bool { false }
 
 fn default_login_username_x() -> i32 { 480 }
 fn default_login_username_y() -> i32 { 213 }
@@ -80,6 +86,8 @@ impl Default for AppConfig {
             auto_start_enabled: false,
             auto_start_lds: Vec::new(),
             auto_sort_after_start: false,
+            auto_sort_delay_sec: 5,
+            auto_open_nph_enabled: false,
             login_username_x: 480,
             login_username_y: 213,
             login_password_x: 480,
