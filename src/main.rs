@@ -100,9 +100,13 @@ fn config_auto_start() {
     let sort_after = if config.auto_sort_after_start { "YES".green().bold() } else { "NO".red().bold() };
     let open_nph = if config.auto_open_nph_enabled { "YES".green().bold() } else { "NO".red().bold() };
     
+    let nph_exists = std::path::Path::new("C:\\Program Files\\NPHTool\\tool.exe").exists();
+    let nph_status = if nph_exists { "FOUND".green().bold() } else { "NOT FOUND".red().bold() };
+
     println!("{}", format!("AUTO-START: {}", status).bold());
     println!("{}", format!("AUTO-SORT AFTER START: {}", sort_after).bold());
     println!("{}", format!("AUTO-OPEN NPH TOOL: {}", open_nph).bold());
+    println!("{}", format!("NPH TOOL STATUS (PATH): {}", nph_status).bold());
     println!("{}", format!("AUTO-SORT DELAY: {} SEC", config.auto_sort_delay_sec).bold());
     println!("{}", format!("SELECTED LDS: {:?}", config.auto_start_lds).bold());
     println!("{}", format!("SORT COLUMNS: {}", config.sort_columns).bold());
