@@ -422,7 +422,7 @@ fn run_nph_activation() {
     println!();
     
     log_system("STEP 3: SEARCHING FOR NPH WINDOW...");
-    use crate::auto_nph::{find_and_focus, click_relative, get_hwnd_by_title, scroll_window};
+    use crate::auto_nph::{find_and_focus, click_relative, get_hwnd_by_title, drag_relative};
     
     let mut hwnd = get_hwnd_by_title("NPHTool");
     if hwnd == 0 {

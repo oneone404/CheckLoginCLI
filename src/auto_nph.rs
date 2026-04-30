@@ -232,11 +232,11 @@ mod win32 {
 
             // Move to Start
             SetCursorPos(pt1.x, pt1.y);
-            std::thread::sleep(Duration::from_millis(100));
+            std::thread::sleep(std::time::Duration::from_millis(100));
             
             // Mouse Down
             mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
-            std::thread::sleep(Duration::from_millis(100));
+            std::thread::sleep(std::time::Duration::from_millis(100));
 
             // Drag to End (Smoothly)
             let steps = 10;
@@ -244,11 +244,11 @@ mod win32 {
                 let curr_x = pt1.x + (pt2.x - pt1.x) * i / steps;
                 let curr_y = pt1.y + (pt2.y - pt1.y) * i / steps;
                 SetCursorPos(curr_x, curr_y);
-                std::thread::sleep(Duration::from_millis(20));
+                std::thread::sleep(std::time::Duration::from_millis(20));
             }
 
             // Mouse Up
-            std::thread::sleep(Duration::from_millis(100));
+            std::thread::sleep(std::time::Duration::from_millis(100));
             mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
         }
     }
