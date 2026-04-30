@@ -52,6 +52,10 @@ pub struct AppConfig {
     pub login_btn_y: i32,
     #[serde(default = "default_sort_columns")]
     pub sort_columns: i32,
+    #[serde(default = "default_nph_open_x")]
+    pub nph_open_x: i32,
+    #[serde(default = "default_nph_open_y")]
+    pub nph_open_y: i32,
 }
 
 fn default_restart_minutes() -> u64 { DEFAULT_RESTART_MINUTES }
@@ -65,6 +69,8 @@ fn default_auto_start_lds() -> Vec<i32> { Vec::new() }
 fn default_auto_sort_after_start() -> bool { false }
 fn default_auto_sort_delay_sec() -> u64 { 5 }
 fn default_auto_open_nph_enabled() -> bool { false }
+fn default_nph_open_x() -> i32 { 100 }
+fn default_nph_open_y() -> i32 { 100 }
 
 fn default_login_username_x() -> i32 { 480 }
 fn default_login_username_y() -> i32 { 213 }
@@ -95,6 +101,8 @@ impl Default for AppConfig {
             login_btn_x: 480,
             login_btn_y: 316,
             sort_columns: 5,
+            nph_open_x: 100,
+            nph_open_y: 100,
         }
     }
 }

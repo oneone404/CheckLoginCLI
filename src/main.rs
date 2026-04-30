@@ -75,6 +75,19 @@ fn run_auto_start_feature(exit_after: bool) {
         let _ = silent_command("cmd")
             .args(["/c", "start", "", tool_path])
             .output();
+        
+        // Wait for NPH to open
+        std::thread::sleep(Duration::from_secs(3));
+        
+        // Focus and click
+        use crate::auto_nph::{find_and_focus, click_relative, get_hwnd_by_title};
+        if find_and_focus("NPH") {
+            let hwnd = get_hwnd_by_title("NPH");
+            if hwnd != 0 {
+                log_system(&format!("CLICKING NPH OPEN BUTTON AT ({}, {})...", config.nph_open_x, config.nph_open_y));
+                click_relative(hwnd, config.nph_open_x, config.nph_open_y);
+            }
+        }
     }
 
     if config.auto_sort_after_start {
@@ -107,6 +120,7 @@ fn config_auto_start() {
     println!("{}", format!("AUTO-SORT AFTER START: {}", sort_after).bold());
     println!("{}", format!("AUTO-OPEN NPH TOOL: {}", open_nph).bold());
     println!("{}", format!("NPH TOOL STATUS (PATH): {}", nph_status).bold());
+    println!("{}", format!("NPH OPEN COORDS: ({}, {})", config.nph_open_x, config.nph_open_y).bold());
     println!("{}", format!("AUTO-SORT DELAY: {} SEC", config.auto_sort_delay_sec).bold());
     println!("{}", format!("SELECTED LDS: {:?}", config.auto_start_lds).bold());
     println!("{}", format!("SORT COLUMNS: {}", config.sort_columns).bold());
@@ -118,6 +132,7 @@ fn config_auto_start() {
     println!("  {}  {}", "[4]".cyan().bold(), "CHANGE AUTO-SORT DELAY".bold());
     println!("  {}  {}", "[5]".cyan().bold(), "CHANGE LD LIST".bold());
     println!("  {}  {}", "[6]".cyan().bold(), "CHANGE SORT COLUMNS".bold());
+    println!("  {}  {}", "[7]".cyan().bold(), "CHANGE NPH OPEN COORDS".bold());
     println!("  {}  {}", "[0]".cyan().bold(), "GO BACK".bold());
     print!("\n{}", ">> CHOICE: ".yellow().bold());
     let _ = io::stdout().flush();
@@ -194,6 +209,25 @@ fn config_auto_start() {
             if let Ok(cols) = col_input.trim().parse::<i32>() {
                 config.sort_columns = cols;
                 log_success(-1, &format!("SORT COLUMNS SET TO: {}", config.sort_columns));
+                save_config(&config);
+            }
+            pause_and_return();
+        }
+        7 => {
+            print!("{}", "ENTER NPH OPEN X: ".bold());
+            let _ = io::stdout().flush();
+            let mut x_input = String::new();
+            let _ = io::stdin().read_line(&mut x_input);
+            
+            print!("{}", "ENTER NPH OPEN Y: ".bold());
+            let _ = io::stdout().flush();
+            let mut y_input = String::new();
+            let _ = io::stdin().read_line(&mut y_input);
+            
+            if let (Ok(x), Ok(y)) = (x_input.trim().parse::<i32>(), y_input.trim().parse::<i32>()) {
+                config.nph_open_x = x;
+                config.nph_open_y = y;
+                log_success(-1, &format!("NPH OPEN COORDS SET TO: ({}, {})", x, y));
                 save_config(&config);
             }
             pause_and_return();
@@ -368,6 +402,25 @@ fn run_power_options() {
     }
 }
 
+fn run_mouse_pos_tool() {
+    clear_screen();
+    println!("{}", "--- MOUSE POSITION TOOL ---".bright_magenta().bold());
+    println!("{}", "FOCUS THE TARGET WINDOW (NPHTOOL) TO GET RELATIVE COORDS.".yellow().bold());
+    println!("{}", "PRESS CTRL+C TO STOP AND RETURN TO MENU.".bright_red().bold());
+    println!();
+
+    use crate::auto_nph::{get_hwnd_by_title, get_mouse_pos_relative};
+    let target_hwnd = get_hwnd_by_title("NPH");
+
+    loop {
+        if let Some((x, y)) = get_mouse_pos_relative(target_hwnd) {
+            print!("\r{}", format!("CURRENT MOUSE POS (REL TO NPH): X={}, Y={}      ", x, y).bold().cyan());
+            let _ = io::stdout().flush();
+        }
+        std::thread::sleep(Duration::from_millis(100));
+    }
+}
+
 fn show_menu() -> u8 {
     println!();
     println!("{}", "========================================================".bright_cyan().bold());
@@ -381,6 +434,7 @@ fn show_menu() -> u8 {
     println!("  {}  {}", "[5]".cyan().bold(), "SETTINGS (AUTO START)".bold());
     println!("  {}  {}", "[6]".cyan().bold(), "CLOSE ALL LD & NPH".bold());
     println!("  {}  {}", "[7]".cyan().bold(), "POWER OPTIONS (SHUT/RESTART)".bold());
+    println!("  {}  {}", "[8]".cyan().bold(), "MOUSE POSITION TOOL (RELATIVE)".bold());
     println!("  {}  {}", "[0]".cyan().bold(), "EXIT...".bold());
     println!();
     println!("{}", "========================================================".bright_cyan().bold());
@@ -421,6 +475,7 @@ async fn main() {
             5 => config_auto_start(),
             6 => run_close_all(),
             7 => run_power_options(),
+            8 => run_mouse_pos_tool(),
             _ => {
                 log_system("EXITING.");
                 break;

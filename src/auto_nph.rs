@@ -24,6 +24,14 @@ mod win32 {
         fn GetSystemMetrics(nIndex: i32) -> i32;
         fn GetWindowRect(hWnd: isize, lpRect: *mut Rect) -> i32;
         fn GetClassNameW(hWnd: isize, lpClassName: *mut u16, nMaxCount: i32) -> i32;
+        fn GetCursorPos(lpPoint: *mut Point) -> i32;
+        fn ScreenToClient(hWnd: isize, lpPoint: *mut Point) -> i32;
+    }
+ 
+    #[repr(C)]
+    pub struct Point {
+        pub x: i32,
+        pub y: i32,
     }
 
     #[repr(C)]
@@ -140,6 +148,42 @@ mod win32 {
             EnumWindows(enum_callback, &mut data as *mut ListData as isize);
         }
         data.list
+    }
+
+    pub fn get_hwnd_by_title(title_part: &str) -> isize {
+        unsafe {
+            let mut data = SearchData {
+                search_text: title_part.to_string(),
+                found_hwnd: 0,
+            };
+            EnumWindows(enum_windows_callback, &mut data as *mut SearchData as isize);
+            data.found_hwnd
+        }
+    }
+
+    pub fn get_mouse_pos_relative(hwnd: isize) -> Option<(i32, i32)> {
+        unsafe {
+            let mut pt = Point { x: 0, y: 0 };
+            if GetCursorPos(&mut pt) != 0 {
+                if hwnd != 0 {
+                    ScreenToClient(hwnd, &mut pt);
+                }
+                return Some((pt.x, pt.y));
+            }
+            None
+        }
+    }
+
+    pub fn click_relative(hwnd: isize, x: i32, y: i32) {
+        unsafe {
+            let mut rect = Rect { left: 0, top: 0, right: 0, bottom: 0 };
+            GetWindowRect(hwnd, &mut rect);
+            let abs_x = rect.left + x;
+            let abs_y = rect.top + y;
+            SetCursorPos(abs_x, abs_y);
+            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+        }
     }
 }
 
