@@ -120,7 +120,7 @@ fn default_nph_coords_fhd() -> NPHProfileCoords {
         active: (910, 125),
         refresh: (512, 347),
         scroll1_start: (990, 20),
-        scroll1_end: (990, 185),
+        scroll1_end: (990, 190),
         scroll2_start: (990, 190),
         scroll2_end: (990, 330),
         ld1_9: vec![
