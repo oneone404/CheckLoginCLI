@@ -70,24 +70,7 @@ fn run_auto_start_feature(exit_after: bool) {
     log_system("COMMANDS SENT TO ALL LDS.");
 
     if config.auto_open_nph_enabled {
-        log_system("OPENING NPH TOOL...");
-        let tool_path = "C:\\Program Files\\NPHTool\\tool.exe";
-        let _ = silent_command("cmd")
-            .args(["/c", "start", "", tool_path])
-            .output();
-        
-        // Wait for NPH to open
-        std::thread::sleep(Duration::from_secs(3));
-        
-        // Focus and click
-        use crate::auto_nph::{find_and_focus, click_relative, get_hwnd_by_title};
-        if find_and_focus("NPH") {
-            let hwnd = get_hwnd_by_title("NPH");
-            if hwnd != 0 {
-                log_system(&format!("CLICKING NPH ACTIVE BUTTON AT ({}, {})...", config.nph_active_x, config.nph_active_y));
-                click_relative(hwnd, config.nph_active_x, config.nph_active_y);
-            }
-        }
+        run_nph_activation();
     }
 
     if config.auto_sort_after_start {
@@ -402,6 +385,30 @@ fn run_power_options() {
     }
 }
 
+fn run_nph_activation() {
+    log_system("OPENING NPH TOOL...");
+    let tool_path = "C:\\Program Files\\NPHTool\\tool.exe";
+    let _ = silent_command("cmd")
+        .args(["/c", "start", "", tool_path])
+        .output();
+    
+    log_system("WAITING 5 SECONDS FOR NPH TO LOAD...");
+    std::thread::sleep(Duration::from_secs(5));
+    
+    use crate::auto_nph::{find_and_focus, click_relative, get_hwnd_by_title};
+    if find_and_focus("NPH") {
+        let hwnd = get_hwnd_by_title("NPH");
+        if hwnd != 0 {
+            let config = get_config();
+            log_system(&format!("CLICKING NPH ACTIVE BUTTON AT ({}, {})...", config.nph_active_x, config.nph_active_y));
+            click_relative(hwnd, config.nph_active_x, config.nph_active_y);
+            log_success(-1, "NPH ACTIVATED!");
+        }
+    } else {
+        log_error(-1, "NPH WINDOW NOT FOUND!");
+    }
+}
+
 fn run_mouse_pos_tool() {
     clear_screen();
     println!("{}", "--- MOUSE POSITION TOOL ---".bright_magenta().bold());
@@ -435,6 +442,7 @@ fn show_menu() -> u8 {
     println!("  {}  {}", "[6]".cyan().bold(), "CLOSE ALL LD & NPH".bold());
     println!("  {}  {}", "[7]".cyan().bold(), "POWER OPTIONS (SHUT/RESTART)".bold());
     println!("  {}  {}", "[8]".cyan().bold(), "MOUSE POSITION TOOL (RELATIVE)".bold());
+    println!("  {}  {}", "[9]".cyan().bold(), "AUTO RUN NPH TOOL".bold());
     println!("  {}  {}", "[0]".cyan().bold(), "EXIT...".bold());
     println!();
     println!("{}", "========================================================".bright_cyan().bold());
@@ -476,6 +484,10 @@ async fn main() {
             6 => run_close_all(),
             7 => run_power_options(),
             8 => run_mouse_pos_tool(),
+            9 => {
+                run_nph_activation();
+                pause_and_return();
+            }
             _ => {
                 log_system("EXITING.");
                 break;
