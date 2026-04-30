@@ -464,7 +464,7 @@ fn run_nph_activation() {
         log_system(&format!("STEP 6: CLICKING REFRESH BUTTON AT ({}, {})...", config.nph_refresh_x, config.nph_refresh_y));
         click_relative(hwnd, config.nph_refresh_x, config.nph_refresh_y);
         
-        log_system("STEP 7: WAITING 5 SECONDS TO MAXIMIZE WINDOW...");
+        log_system("STEP 7: WAITING 5 SECONDS TO STANDARDIZE WINDOW SIZE...");
         for i in (1..=5).rev() {
             print!("\r{}", format!("[SYSTEM] ... {} SECONDS REMAINING", i).bold().yellow());
             let _ = io::stdout().flush();
@@ -472,10 +472,10 @@ fn run_nph_activation() {
         }
         println!();
 
-        log_system("STEP 8: MAXIMIZING NPH TOOL WINDOW...");
-        crate::auto_nph::maximize_window(hwnd);
+        log_system("STEP 8: SETTING NPH TOOL TO STANDARD SIZE (1024x720)...");
+        crate::auto_nph::set_standard_size(hwnd);
         
-        log_success(-1, "NPH WINDOW MAXIMIZED SUCCESSFULLY!");
+        log_success(-1, "NPH WINDOW STANDARDIZED TO 1024x720 SUCCESSFULLY!");
     } else {
         log_error(-1, "NPH WINDOW NOT FOUND! PLEASE ENSURE NPHTOOL IS RUNNING.");
     }
