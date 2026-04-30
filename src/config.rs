@@ -60,12 +60,6 @@ pub struct AppConfig {
     pub nph_refresh_x: i32,
     #[serde(default = "default_nph_refresh_y")]
     pub nph_refresh_y: i32,
-    #[serde(default = "default_nph_scroll_x")]
-    pub nph_scroll_x: i32,
-    #[serde(default = "default_nph_scroll_y1")]
-    pub nph_scroll_y1: i32,
-    #[serde(default = "default_nph_scroll_y2")]
-    pub nph_scroll_y2: i32,
 }
 
 fn default_restart_minutes() -> u64 { DEFAULT_RESTART_MINUTES }
@@ -79,13 +73,10 @@ fn default_auto_start_lds() -> Vec<i32> { Vec::new() }
 fn default_auto_sort_after_start() -> bool { false }
 fn default_auto_sort_delay_sec() -> u64 { 5 }
 fn default_auto_open_nph_enabled() -> bool { false }
-fn default_nph_active_x() -> i32 { 910 }
-fn default_nph_active_y() -> i32 { 125 }
-fn default_nph_refresh_x() -> i32 { 515 }
-fn default_nph_refresh_y() -> i32 { 320 }
-fn default_nph_scroll_x() -> i32 { 980 }
-fn default_nph_scroll_y1() -> i32 { 200 }
-fn default_nph_scroll_y2() -> i32 { 600 }
+fn default_nph_active_x() -> i32 { 990 }
+fn default_nph_active_y() -> i32 { 185 }
+fn default_nph_refresh_x() -> i32 { 990 }
+fn default_nph_refresh_y() -> i32 { 525 }
 
 fn default_login_username_x() -> i32 { 480 }
 fn default_login_username_y() -> i32 { 213 }
@@ -120,9 +111,6 @@ impl Default for AppConfig {
             nph_active_y: 125,
             nph_refresh_x: 515,
             nph_refresh_y: 320,
-            nph_scroll_x: 980,
-            nph_scroll_y1: 200,
-            nph_scroll_y2: 600,
         }
     }
 }
