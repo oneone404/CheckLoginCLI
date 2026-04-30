@@ -26,6 +26,7 @@ mod win32 {
         fn GetClassNameW(hWnd: isize, lpClassName: *mut u16, nMaxCount: i32) -> i32;
         fn GetCursorPos(lpPoint: *mut Point) -> i32;
         fn ScreenToClient(hWnd: isize, lpPoint: *mut Point) -> i32;
+        fn ClientToScreen(hWnd: isize, lpPoint: *mut Point) -> i32;
     }
  
     #[repr(C)]
@@ -176,11 +177,9 @@ mod win32 {
 
     pub fn click_relative(hwnd: isize, x: i32, y: i32) {
         unsafe {
-            let mut rect = Rect { left: 0, top: 0, right: 0, bottom: 0 };
-            GetWindowRect(hwnd, &mut rect);
-            let abs_x = rect.left + x;
-            let abs_y = rect.top + y;
-            SetCursorPos(abs_x, abs_y);
+            let mut pt = Point { x, y };
+            ClientToScreen(hwnd, &mut pt);
+            SetCursorPos(pt.x, pt.y);
             mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
             mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
         }
