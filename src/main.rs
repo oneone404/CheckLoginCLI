@@ -105,6 +105,7 @@ fn config_auto_start() {
     println!("{}", format!("NPH TOOL STATUS (PATH): {}", nph_status).bold());
     println!("{}", format!("NPH ACTIVE COORDS: ({}, {})", config.nph_active_x, config.nph_active_y).bold());
     println!("{}", format!("NPH REFRESH COORDS: ({}, {})", config.nph_refresh_x, config.nph_refresh_y).bold());
+    println!("{}", format!("NPH SCROLL (X, Y1, Y2): ({}, {}, {})", config.nph_scroll_x, config.nph_scroll_y1, config.nph_scroll_y2).bold());
     println!("{}", format!("AUTO-SORT DELAY: {} SEC", config.auto_sort_delay_sec).bold());
     println!("{}", format!("SELECTED LDS: {:?}", config.auto_start_lds).bold());
     println!("{}", format!("SORT COLUMNS: {}", config.sort_columns).bold());
@@ -118,6 +119,7 @@ fn config_auto_start() {
     println!("  {}  {}", "[6]".cyan().bold(), "CHANGE SORT COLUMNS".bold());
     println!("  {}  {}", "[7]".cyan().bold(), "CHANGE NPH ACTIVE COORDS".bold());
     println!("  {}  {}", "[8]".cyan().bold(), "CHANGE NPH REFRESH COORDS".bold());
+    println!("  {}  {}", "[9]".cyan().bold(), "CHANGE NPH SCROLL COORDS".bold());
     println!("  {}  {}", "[0]".cyan().bold(), "GO BACK".bold());
     print!("\n{}", ">> CHOICE: ".yellow().bold());
     let _ = io::stdout().flush();
@@ -232,6 +234,35 @@ fn config_auto_start() {
                 config.nph_refresh_x = x;
                 config.nph_refresh_y = y;
                 log_success(-1, &format!("NPH REFRESH COORDS SET TO: ({}, {})", x, y));
+                save_config(&config);
+            }
+            pause_and_return();
+        }
+        9 => {
+            print!("{}", "ENTER NPH SCROLL X: ".bold());
+            let _ = io::stdout().flush();
+            let mut x_in = String::new();
+            let _ = io::stdin().read_line(&mut x_in);
+            
+            print!("{}", "ENTER NPH SCROLL Y1 (START): ".bold());
+            let _ = io::stdout().flush();
+            let mut y1_in = String::new();
+            let _ = io::stdin().read_line(&mut y1_in);
+
+            print!("{}", "ENTER NPH SCROLL Y2 (END): ".bold());
+            let _ = io::stdout().flush();
+            let mut y2_in = String::new();
+            let _ = io::stdin().read_line(&mut y2_in);
+            
+            if let (Ok(x), Ok(y1), Ok(y2)) = (
+                x_in.trim().parse::<i32>(), 
+                y1_in.trim().parse::<i32>(),
+                y2_in.trim().parse::<i32>()
+            ) {
+                config.nph_scroll_x = x;
+                config.nph_scroll_y1 = y1;
+                config.nph_scroll_y2 = y2;
+                log_success(-1, &format!("NPH SCROLL SET TO: X={}, Y1={}, Y2={}", x, y1, y2));
                 save_config(&config);
             }
             pause_and_return();
@@ -449,7 +480,7 @@ fn run_nph_activation() {
         log_system(&format!("STEP 6: CLICKING REFRESH BUTTON AT ({}, {})...", config.nph_refresh_x, config.nph_refresh_y));
         click_relative(hwnd, config.nph_refresh_x, config.nph_refresh_y);
         
-        log_system("STEP 7: WAITING 5 SECONDS TO SCROLL...");
+        log_system("STEP 7: WAITING 5 SECONDS TO TEST SCROLL...");
         for i in (1..=5).rev() {
             print!("\r{}", format!("[SYSTEM] ... {} SECONDS REMAINING", i).bold().yellow());
             let _ = io::stdout().flush();
@@ -457,21 +488,10 @@ fn run_nph_activation() {
         }
         println!();
 
-        log_system("STEP 8: PERFORMING SCROLL (MOUSE DRAG)...");
-        crate::auto_nph::drag_relative(hwnd, 980, 200, 980, 600);
+        log_system("STEP 8: PERFORMING SCROLL (PHYSICAL DRAG)...");
+        crate::auto_nph::drag_relative(hwnd, config.nph_scroll_x, config.nph_scroll_y1, config.nph_scroll_x, config.nph_scroll_y2);
         
-        log_system("STEP 9: WAITING 5 SECONDS FOR LOGIC 1 (OPEN GAME)...");
-        for i in (1..=5).rev() {
-            print!("\r{}", format!("[SYSTEM] ... {} SECONDS REMAINING", i).bold().yellow());
-            let _ = io::stdout().flush();
-            std::thread::sleep(Duration::from_secs(1));
-        }
-        println!();
-
-        log_system("STEP 10: EXECUTING LOGIC 1 (OPENING GAMES FOR ALL LDS)...");
-        crate::auto_nph::run_auto_config_nph(false); // Call Open Game logic
-        
-        log_success(-1, "NPH ACTIVATED, REFRESHED, SCROLLED AND GAMES OPENED SUCCESSFULLY!");
+        log_success(-1, "NPH ACTIVATED, REFRESHED AND DRAGGED SUCCESSFULLY!");
     } else {
         log_error(-1, "NPH WINDOW NOT FOUND! PLEASE ENSURE NPHTOOL IS RUNNING.");
     }
@@ -500,6 +520,7 @@ fn run_mouse_drag_test() {
     clear_screen();
     println!("{}", "--- MOUSE DRAG TEST TOOL ---".bright_magenta().bold());
     
+    let config = get_config();
     use crate::auto_nph::{get_hwnd_by_title, drag_relative};
     let hwnd = get_hwnd_by_title("NPH");
     if hwnd == 0 {
@@ -508,36 +529,23 @@ fn run_mouse_drag_test() {
         return;
     }
 
-    println!("{}", "ENTER COORDINATES (RELATIVE TO NPH WINDOW)".yellow().bold());
-    
-    print!("{}", "START X1: ".bold());
-    let _ = io::stdout().flush();
-    let mut x1_in = String::new();
-    let _ = io::stdin().read_line(&mut x1_in);
+    println!("{}", format!("USING CONFIGURED SCROLL X: {}", config.nph_scroll_x).cyan().bold());
+    println!("{}", "ENTER Y COORDINATES TO TEST DRAG".yellow().bold());
     
     print!("{}", "START Y1: ".bold());
     let _ = io::stdout().flush();
     let mut y1_in = String::new();
     let _ = io::stdin().read_line(&mut y1_in);
     
-    print!("{}", "END X2: ".bold());
-    let _ = io::stdout().flush();
-    let mut x2_in = String::new();
-    let _ = io::stdin().read_line(&mut x2_in);
-    
     print!("{}", "END Y2: ".bold());
     let _ = io::stdout().flush();
     let mut y2_in = String::new();
     let _ = io::stdin().read_line(&mut y2_in);
 
-    if let (Ok(x1), Ok(y1), Ok(x2), Ok(y2)) = (
-        x1_in.trim().parse::<i32>(), 
-        y1_in.trim().parse::<i32>(), 
-        x2_in.trim().parse::<i32>(), 
-        y2_in.trim().parse::<i32>()
-    ) {
-        log_system(&format!("EXECUTING DRAG FROM ({}, {}) TO ({}, {})...", x1, y1, x2, y2));
-        drag_relative(hwnd, x1, y1, x2, y2);
+    if let (Ok(y1), Ok(y2)) = (y1_in.trim().parse::<i32>(), y2_in.trim().parse::<i32>()) {
+        let x = config.nph_scroll_x;
+        log_system(&format!("EXECUTING DRAG FROM ({}, {}) TO ({}, {})...", x, y1, x, y2));
+        drag_relative(hwnd, x, y1, x, y2);
         log_success(-1, "DRAG TEST COMPLETED!");
     } else {
         log_error(-1, "INVALID COORDINATES!");
