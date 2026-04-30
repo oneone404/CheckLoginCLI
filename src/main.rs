@@ -390,7 +390,7 @@ fn run_nph_activation() {
     let tool_path = "C:\\Program Files\\NPHTool\\tool.exe";
     let _ = silent_command("cmd")
         .args(["/c", "start", "", tool_path])
-        .output();
+        .spawn(); // Use spawn to not block
     
     log_system("STEP 2: WAITING 5 SECONDS FOR WINDOW TO APPEAR...");
     for i in (1..=5).rev() {
