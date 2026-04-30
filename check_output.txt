@@ -1,0 +1,15 @@
+﻿cargo :    Compiling check-login-cli 
+v1.0.0 (C:\Users\CBS\Downloads\Tools\INP
+UT-ACC\check-login-cli)
+At line:1 char:1
++ cargo check 2>&1 | ForEach-Object { 
+$_ } | Out-File -FilePath C:\User ...
++ ~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecif 
+   ied: (   Compiling ch...heck-login-  
+  cli):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCom 
+   mandError
+ 
+    Finished `dev` profile [unoptimized 
++ debuginfo] target(s) in 0.25s

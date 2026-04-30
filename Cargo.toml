@@ -1,0 +1,43 @@
+[package]
+name = "check-login-cli"
+version = "1.0.0"
+edition = "2021"
+description = "Lightweight CLI tool for checking login status on LDPlayer instances"
+authors = ["CBS"]
+
+[[bin]]
+name = "check_login"
+path = "src/main.rs"
+
+[dependencies]
+# Image processing
+image = "0.24"
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Console output with colors
+colored = "2"
+
+# Lazy static for caching
+lazy_static = "1"
+
+# Ctrl+C handler
+ctrlc = "3"
+
+# Enable ANSI colors on Windows
+enable-ansi-support = "0.2"
+
+[profile.release]
+opt-level = "z"      # Optimize for size
+lto = true           # Link-time optimization
+codegen-units = 1    # Single codegen unit for better optimization
+panic = "abort"      # Abort on panic (smaller binary)
+strip = true         # Strip symbols
+
+[build-dependencies]
+winres = "0.1"

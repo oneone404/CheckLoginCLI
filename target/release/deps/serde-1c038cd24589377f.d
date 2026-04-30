@@ -1,0 +1,14 @@
+C:\Users\CBS\Downloads\Tools\INPUT-ACC\check-login-cli\target\release\deps\serde-1c038cd24589377f.d: C:\Users\CBS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\lib.rs C:\Users\CBS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\integer128.rs C:\Users\CBS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\mod.rs C:\Users\CBS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\de.rs C:\Users\CBS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\ser.rs C:\Users\CBS\Downloads\Tools\INPUT-ACC\check-login-cli\target\release\build\serde-07bd8af21fcbbe47\out/private.rs
+
+C:\Users\CBS\Downloads\Tools\INPUT-ACC\check-login-cli\target\release\deps\libserde-1c038cd24589377f.rlib: C:\Users\CBS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\lib.rs C:\Users\CBS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\integer128.rs C:\Users\CBS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\mod.rs C:\Users\CBS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\de.rs C:\Users\CBS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\ser.rs C:\Users\CBS\Downloads\Tools\INPUT-ACC\check-login-cli\target\release\build\serde-07bd8af21fcbbe47\out/private.rs
+
+C:\Users\CBS\Downloads\Tools\INPUT-ACC\check-login-cli\target\release\deps\libserde-1c038cd24589377f.rmeta: C:\Users\CBS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\lib.rs C:\Users\CBS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\integer128.rs C:\Users\CBS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\mod.rs C:\Users\CBS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\de.rs C:\Users\CBS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\ser.rs C:\Users\CBS\Downloads\Tools\INPUT-ACC\check-login-cli\target\release\build\serde-07bd8af21fcbbe47\out/private.rs
+
+C:\Users\CBS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\lib.rs:
+C:\Users\CBS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\integer128.rs:
+C:\Users\CBS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\mod.rs:
+C:\Users\CBS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\de.rs:
+C:\Users\CBS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\ser.rs:
+C:\Users\CBS\Downloads\Tools\INPUT-ACC\check-login-cli\target\release\build\serde-07bd8af21fcbbe47\out/private.rs:
+
+# env-dep:OUT_DIR=C:\\Users\\CBS\\Downloads\\Tools\\INPUT-ACC\\check-login-cli\\target\\release\\build\\serde-07bd8af21fcbbe47\\out

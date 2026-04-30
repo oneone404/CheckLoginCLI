@@ -1,0 +1,22 @@
+{
+    "_comment": "Cấu hình cho Check Login CLI",
+    "restart_minutes": 30,
+    "_restart_minutes_note": "Số phút chạy trước khi tự restart (0 = không restart)",
+    "max_concurrent": 5,
+    "_max_concurrent_note": "Số luồng check đồng thời tối đa",
+    "check_interval_min_sec": 10,
+    "check_interval_max_sec": 15,
+    "_check_interval_note": "Khoảng thời gian check ngẫu nhiên (giây)",
+    "config_nph_delay_ms": 50,
+    "_config_nph_delay_ms_note": "Tốc độ click khi config Auto NPH (ms)",
+    "login_half_delay_sec": 60,
+    "_login_half_delay_sec_note": "Thời gian dừng sau khi login 1 nửa (giây)",
+    "auto_start_enabled": false,
+    "auto_start_lds": [],
+    "login_username_x": 480,
+    "login_username_y": 213,
+    "login_password_x": 480,
+    "login_password_y": 261,
+    "login_btn_x": 480,
+    "login_btn_y": 316
+}
