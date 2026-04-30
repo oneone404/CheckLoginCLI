@@ -261,16 +261,6 @@ mod win32 {
             PostMessageW(hwnd, WM_KEYUP, VK_F5, 0);
         }
     }
-
-    pub fn set_standard_size(hwnd: isize) {
-        if hwnd == 0 { return; }
-        unsafe {
-            // Set window to 1024x720 at current position
-            let mut rect = Rect { left: 0, top: 0, right: 0, bottom: 0 };
-            GetWindowRect(hwnd, &mut rect);
-            MoveWindow(hwnd, rect.left, rect.top, 1024, 720, 1);
-        }
-    }
 }
 
 #[cfg(windows)]

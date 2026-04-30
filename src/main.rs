@@ -105,7 +105,6 @@ fn config_auto_start() {
     println!("{}", format!("NPH TOOL STATUS (PATH): {}", nph_status).bold());
     println!("{}", format!("NPH ACTIVE COORDS: ({}, {})", config.nph_active_x, config.nph_active_y).bold());
     println!("{}", format!("NPH REFRESH COORDS: ({}, {})", config.nph_refresh_x, config.nph_refresh_y).bold());
-    println!("{}", format!("NPH Y OFFSET: {}", config.nph_y_offset).bold());
     println!("{}", format!("AUTO-SORT DELAY: {} SEC", config.auto_sort_delay_sec).bold());
     println!("{}", format!("SELECTED LDS: {:?}", config.auto_start_lds).bold());
     println!("{}", format!("SORT COLUMNS: {}", config.sort_columns).bold());
@@ -119,7 +118,6 @@ fn config_auto_start() {
     println!("  {}  {}", "[6]".cyan().bold(), "CHANGE SORT COLUMNS".bold());
     println!("  {}  {}", "[7]".cyan().bold(), "CHANGE NPH ACTIVE COORDS".bold());
     println!("  {}  {}", "[8]".cyan().bold(), "CHANGE NPH REFRESH COORDS".bold());
-    println!("  {}  {}", "[9]".cyan().bold(), "CHANGE NPH Y OFFSET".bold());
     println!("  {}  {}", "[0]".cyan().bold(), "GO BACK".bold());
     print!("\n{}", ">> CHOICE: ".yellow().bold());
     let _ = io::stdout().flush();
@@ -234,19 +232,6 @@ fn config_auto_start() {
                 config.nph_refresh_x = x;
                 config.nph_refresh_y = y;
                 log_success(-1, &format!("NPH REFRESH COORDS SET TO: ({}, {})", x, y));
-                save_config(&config);
-            }
-            pause_and_return();
-        }
-        9 => {
-            print!("{}", "ENTER NPH Y OFFSET (e.g. 15 or -10): ".bold());
-            let _ = io::stdout().flush();
-            let mut offset_input = String::new();
-            let _ = io::stdin().read_line(&mut offset_input);
-            
-            if let Ok(offset) = offset_input.trim().parse::<i32>() {
-                config.nph_y_offset = offset;
-                log_success(-1, &format!("NPH Y OFFSET SET TO: {}", offset));
                 save_config(&config);
             }
             pause_and_return();
@@ -464,7 +449,8 @@ fn run_nph_activation() {
         log_system(&format!("STEP 6: CLICKING REFRESH BUTTON AT ({}, {})...", config.nph_refresh_x, config.nph_refresh_y));
         click_relative(hwnd, config.nph_refresh_x, config.nph_refresh_y);
         
-        log_system("STEP 7: WAITING 5 SECONDS TO STANDARDIZE WINDOW SIZE...");
+        // --- LOGIC 1: FULL AUTOMATION ---
+        log_system("STEP 7: WAITING 5 SECONDS TO PERFORM INITIAL SCROLL...");
         for i in (1..=5).rev() {
             print!("\r{}", format!("[SYSTEM] ... {} SECONDS REMAINING", i).bold().yellow());
             let _ = io::stdout().flush();
@@ -472,10 +458,43 @@ fn run_nph_activation() {
         }
         println!();
 
-        log_system("STEP 8: SETTING NPH TOOL TO STANDARD SIZE (1024x720)...");
-        crate::auto_nph::set_standard_size(hwnd);
+        log_system("STEP 8: SCROLLING DOWN (990, 20) TO (990, 185)...");
+        drag_relative(hwnd, 990, 20, 990, 185);
+        std::thread::sleep(Duration::from_secs(5));
+
+        log_system("STEP 9: OPENING GAMES FOR LD 1-9...");
+        for i in 1..=9 {
+            let (x, y) = if i == 1 {
+                (280, 35)
+            } else {
+                (305, 95 + (i - 2) * 60)
+            };
+            log_system(&format!("OPENING GAME FOR LD {} AT ({}, {})...", i, x, y));
+            click_relative(hwnd, x, y);
+            std::thread::sleep(Duration::from_millis(500));
+        }
+
+        log_system("STEP 10: WAITING 60 SECONDS FOR GAMES TO INITIALIZE...");
+        for i in (1..=60).rev() {
+            print!("\r{}", format!("[SYSTEM] ... {} SECONDS REMAINING", i).bold().yellow());
+            let _ = io::stdout().flush();
+            std::thread::sleep(Duration::from_secs(1));
+        }
+        println!();
+
+        log_system("STEP 11: SCROLLING DOWN (990, 185) TO (990, 325)...");
+        drag_relative(hwnd, 990, 185, 990, 325);
+        std::thread::sleep(Duration::from_secs(5));
+
+        log_system("STEP 12: OPENING GAMES FOR LD 10-15...");
+        for i in 10..=15 {
+            let (x, y) = (305, 205 + (i - 10) * 60);
+            log_system(&format!("OPENING GAME FOR LD {} AT ({}, {})...", i, x, y));
+            click_relative(hwnd, x, y);
+            std::thread::sleep(Duration::from_millis(500));
+        }
         
-        log_success(-1, "NPH WINDOW STANDARDIZED TO 1024x720 SUCCESSFULLY!");
+        log_success(-1, "LOGIC 1 COMPLETED: ALL 15 GAMES ARE OPENING!");
     } else {
         log_error(-1, "NPH WINDOW NOT FOUND! PLEASE ENSURE NPHTOOL IS RUNNING.");
     }
