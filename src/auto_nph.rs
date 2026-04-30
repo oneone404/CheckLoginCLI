@@ -184,7 +184,7 @@ mod win32 {
         unsafe {
             let lparam = ((y as isize) << 16) | (x as isize);
             PostMessageW(hwnd, WM_LBUTTONDOWN, 1, lparam);
-            std::thread::sleep(Duration::from_millis(10));
+            std::thread::sleep(std::time::Duration::from_millis(10));
             PostMessageW(hwnd, WM_LBUTTONUP, 0, lparam);
         }
     }
