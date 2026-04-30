@@ -106,11 +106,11 @@ fn default_check_interval_min() -> u64 { DEFAULT_CHECK_INTERVAL_MIN_SEC }
 fn default_check_interval_max() -> u64 { DEFAULT_CHECK_INTERVAL_MAX_SEC }
 fn default_config_nph_delay_ms() -> u64 { 40 }
 fn default_login_half_delay_sec() -> u64 { 60 }
-fn default_auto_start_enabled() -> bool { false }
+fn default_auto_start_enabled() -> bool { true }
 fn default_auto_start_lds() -> Vec<i32> { Vec::new() }
-fn default_auto_sort_after_start() -> bool { false }
+fn default_auto_sort_after_start() -> bool { true }
 fn default_auto_sort_delay_sec() -> u64 { 5 }
-fn default_auto_open_nph_enabled() -> bool { false }
+fn default_auto_open_nph_enabled() -> bool { true }
 fn default_nph_active_x() -> i32 { 910 }
 fn default_nph_active_y() -> i32 { 125 }
 fn default_nph_refresh_x() -> i32 { 515 }
@@ -177,11 +177,11 @@ impl Default for AppConfig {
             check_interval_max_sec: DEFAULT_CHECK_INTERVAL_MAX_SEC,
             config_nph_delay_ms: 40,
             login_half_delay_sec: 60,
-            auto_start_enabled: false,
+            auto_start_enabled: true,
             auto_start_lds: Vec::new(),
-            auto_sort_after_start: false,
+            auto_sort_after_start: true,
             auto_sort_delay_sec: 5,
-            auto_open_nph_enabled: false,
+            auto_open_nph_enabled: true,
             login_username_x: 480,
             login_username_y: 213,
             login_password_x: 480,
