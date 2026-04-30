@@ -220,8 +220,13 @@ pub fn load_config() -> AppConfig {
                 content = content.replace('\u{feff}', "");
             }
             match serde_json::from_str::<AppConfig>(&content) {
-                Ok(config) => {
+                    let mut config = config;
                     log_system(&format!("LOADED CONFIG FROM: {}", path));
+                    // Auto Detect Profile logic inside load_config
+                    if config.auto_detect_profile {
+                        use crate::auto_nph::win32::detect_screen_profile;
+                        config.nph_profile = detect_screen_profile();
+                    }
                     return config;
                 }
                 Err(e) => {
@@ -232,7 +237,12 @@ pub fn load_config() -> AppConfig {
     }
     
     log_warning(0, "NO VALID CONFIG FILE FOUND, USING DEFAULTS.");
-    AppConfig::default()
+    let mut default_config = AppConfig::default();
+    if default_config.auto_detect_profile {
+        use crate::auto_nph::win32::detect_screen_profile;
+        default_config.nph_profile = detect_screen_profile();
+    }
+    default_config
 }
 
 pub fn get_config() -> &'static AppConfig {

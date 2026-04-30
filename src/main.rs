@@ -652,21 +652,6 @@ async fn main() {
 
     kill_previous_instance();
 
-    // Auto Detect Profile
-    {
-        let config_ref = get_config();
-        if config_ref.auto_detect_profile {
-            use crate::auto_nph::win32::detect_screen_profile;
-            let detected = detect_screen_profile();
-            if config_ref.nph_profile != detected {
-                let mut new_config = config_ref.clone();
-                new_config.nph_profile = detected;
-                save_config(&new_config);
-                log_system(&format!("AUTO-DETECTED SCREEN: SWITCHED TO {}", new_config.nph_profile));
-            }
-        }
-    }
-
     loop {
         clear_screen();
         let choice = show_menu();
