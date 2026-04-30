@@ -557,15 +557,25 @@ fn run_mouse_pos_tool() {
     println!("{}", "PRESS CTRL+C TO STOP AND RETURN TO MENU.".bright_red().bold());
     println!();
 
-    use crate::auto_nph::{get_hwnd_by_title, get_mouse_pos_relative};
+    use crate::auto_nph::{get_hwnd_by_title, get_mouse_pos_relative, win32};
     let target_hwnd = get_hwnd_by_title("NPH");
+
+    let mut last_click_state = false;
 
     loop {
         if let Some((x, y)) = get_mouse_pos_relative(target_hwnd) {
             print!("\r{}", format!("CURRENT MOUSE POS (REL TO NPH): X={}, Y={}      ", x, y).bold().cyan());
             let _ = io::stdout().flush();
+
+            // Detect Click
+            let click_state = win32::is_clicked();
+            if click_state && !last_click_state {
+                // Just clicked
+                println!("\n{}", format!(">> SAVED COORDS: ({}, {})", x, y).bold().green());
+            }
+            last_click_state = click_state;
         }
-        std::thread::sleep(Duration::from_millis(100));
+        std::thread::sleep(Duration::from_millis(50));
     }
 }
 

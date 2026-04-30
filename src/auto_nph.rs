@@ -25,6 +25,7 @@ mod win32 {
         fn GetWindowRect(hWnd: isize, lpRect: *mut Rect) -> i32;
         fn GetClassNameW(hWnd: isize, lpClassName: *mut u16, nMaxCount: i32) -> i32;
         fn GetCursorPos(lpPoint: *mut Point) -> i32;
+        fn GetAsyncKeyState(vKey: i32) -> i16;
         fn ScreenToClient(hWnd: isize, lpPoint: *mut Point) -> i32;
         fn ClientToScreen(hWnd: isize, lpPoint: *mut Point) -> i32;
         fn PostMessageW(hWnd: isize, Msg: u32, wParam: usize, lParam: isize) -> i32;
@@ -32,6 +33,7 @@ mod win32 {
         fn EnumChildWindows(hWndParent: isize, lpEnumFunc: extern "system" fn(isize, isize) -> i32, lParam: isize) -> i32;
     }
  
+    const VK_LBUTTON: i32 = 0x01;
     const WM_LBUTTONDOWN: u32 = 0x0201;
     const WM_LBUTTONUP: u32 = 0x0202;
     const WM_MOUSEMOVE: u32 = 0x0200;
@@ -219,6 +221,12 @@ mod win32 {
 
     pub fn click_bg(hwnd: isize, x: i32, y: i32) {
         click_relative(hwnd, x, y);
+    }
+
+    pub fn is_clicked() -> bool {
+        unsafe {
+            (GetAsyncKeyState(VK_LBUTTON) as u32 & 0x8000) != 0
+        }
     }
 
     pub fn drag_relative(hwnd: isize, x1: i32, y1: i32, x2: i32, y2: i32) {
