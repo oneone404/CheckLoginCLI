@@ -660,7 +660,7 @@ async fn main() {
             let detected = detect_screen_profile();
             if config.nph_profile != detected {
                 config.nph_profile = detected;
-                crate::config::save_config(&config);
+                save_config(&config);
             }
         }
     }
