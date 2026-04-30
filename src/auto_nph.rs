@@ -221,22 +221,35 @@ mod win32 {
         click_relative(hwnd, x, y);
     }
 
-    pub fn scroll_window(hwnd: isize, delta: i32) {
+    pub fn drag_relative(hwnd: isize, x1: i32, y1: i32, x2: i32, y2: i32) {
         if hwnd == 0 { return; }
-        let child_hwnd = get_child_window(hwnd);
         unsafe {
-            let wparam = ((delta as u32) << 16) as usize;
+            let mut pt1 = Point { x: x1, y: y1 };
+            ClientToScreen(hwnd, &mut pt1);
             
-            // Try Mouse Wheel on both
-            SendMessageW(hwnd, WM_MOUSEWHEEL, wparam, 0);
-            if child_hwnd != 0 && child_hwnd != hwnd {
-                SendMessageW(child_hwnd, WM_MOUSEWHEEL, wparam, 0);
+            let mut pt2 = Point { x: x2, y: y2 };
+            ClientToScreen(hwnd, &mut pt2);
+
+            // Move to Start
+            SetCursorPos(pt1.x, pt1.y);
+            std::thread::sleep(Duration::from_millis(100));
+            
+            // Mouse Down
+            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+            std::thread::sleep(Duration::from_millis(100));
+
+            // Drag to End (Smoothly)
+            let steps = 10;
+            for i in 1..=steps {
+                let curr_x = pt1.x + (pt2.x - pt1.x) * i / steps;
+                let curr_y = pt1.y + (pt2.y - pt1.y) * i / steps;
+                SetCursorPos(curr_x, curr_y);
+                std::thread::sleep(Duration::from_millis(20));
             }
 
-            // Also try Page Down key for forced scrolling
-            PostMessageW(hwnd, WM_KEYDOWN, VK_NEXT, 0);
-            std::thread::sleep(std::time::Duration::from_millis(50));
-            PostMessageW(hwnd, WM_KEYUP, VK_NEXT, 0);
+            // Mouse Up
+            std::thread::sleep(Duration::from_millis(100));
+            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
         }
     }
 

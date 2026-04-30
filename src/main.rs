@@ -457,10 +457,11 @@ fn run_nph_activation() {
         }
         println!();
 
-        log_system("STEP 8: PERFORMING TEST SCROLL (MOUSE WHEEL)...");
-        scroll_window(hwnd, -500); // Scroll down
+        log_system("STEP 8: PERFORMING TEST DRAG (SCROLL)...");
+        // Example drag: from right side (scrollbar area) down
+        crate::auto_nph::drag_relative(hwnd, 980, 200, 980, 600);
         
-        log_success(-1, "NPH ACTIVATED, REFRESHED AND SCROLLED SUCCESSFULLY!");
+        log_success(-1, "NPH ACTIVATED, REFRESHED AND DRAGGED SUCCESSFULLY!");
     } else {
         log_error(-1, "NPH WINDOW NOT FOUND! PLEASE ENSURE NPHTOOL IS RUNNING.");
     }
@@ -485,6 +486,55 @@ fn run_mouse_pos_tool() {
     }
 }
 
+fn run_mouse_drag_test() {
+    clear_screen();
+    println!("{}", "--- MOUSE DRAG TEST TOOL ---".bright_magenta().bold());
+    
+    use crate::auto_nph::{get_hwnd_by_title, drag_relative};
+    let hwnd = get_hwnd_by_title("NPH");
+    if hwnd == 0 {
+        log_error(-1, "NPH WINDOW NOT FOUND! PLEASE OPEN NPHTOOL FIRST.");
+        pause_and_return();
+        return;
+    }
+
+    println!("{}", "ENTER COORDINATES (RELATIVE TO NPH WINDOW)".yellow().bold());
+    
+    print!("{}", "START X1: ".bold());
+    let _ = io::stdout().flush();
+    let mut x1_in = String::new();
+    let _ = io::stdin().read_line(&mut x1_in);
+    
+    print!("{}", "START Y1: ".bold());
+    let _ = io::stdout().flush();
+    let mut y1_in = String::new();
+    let _ = io::stdin().read_line(&mut y1_in);
+    
+    print!("{}", "END X2: ".bold());
+    let _ = io::stdout().flush();
+    let mut x2_in = String::new();
+    let _ = io::stdin().read_line(&mut x2_in);
+    
+    print!("{}", "END Y2: ".bold());
+    let _ = io::stdout().flush();
+    let mut y2_in = String::new();
+    let _ = io::stdin().read_line(&mut y2_in);
+
+    if let (Ok(x1), Ok(y1), Ok(x2), Ok(y2)) = (
+        x1_in.trim().parse::<i32>(), 
+        y1_in.trim().parse::<i32>(), 
+        x2_in.trim().parse::<i32>(), 
+        y2_in.trim().parse::<i32>()
+    ) {
+        log_system(&format!("EXECUTING DRAG FROM ({}, {}) TO ({}, {})...", x1, y1, x2, y2));
+        drag_relative(hwnd, x1, y1, x2, y2);
+        log_success(-1, "DRAG TEST COMPLETED!");
+    } else {
+        log_error(-1, "INVALID COORDINATES!");
+    }
+    pause_and_return();
+}
+
 fn show_menu() -> u8 {
     println!();
     println!("{}", "========================================================".bright_cyan().bold());
@@ -500,6 +550,7 @@ fn show_menu() -> u8 {
     println!("  {}  {}", "[7]".cyan().bold(), "POWER OPTIONS (SHUT/RESTART)".bold());
     println!("  {}  {}", "[8]".cyan().bold(), "MOUSE POSITION TOOL (RELATIVE)".bold());
     println!("  {}  {}", "[9]".cyan().bold(), "AUTO RUN NPH TOOL".bold());
+    println!("  {}  {}", "[10]".cyan().bold(), "TEST MOUSE DRAG (SCROLL)".bold());
     println!("  {}  {}", "[0]".cyan().bold(), "EXIT...".bold());
     println!();
     println!("{}", "========================================================".bright_cyan().bold());
@@ -545,6 +596,7 @@ async fn main() {
                 run_nph_activation();
                 pause_and_return();
             }
+            10 => run_mouse_drag_test(),
             _ => {
                 log_system("EXITING.");
                 break;
