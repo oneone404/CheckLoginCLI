@@ -118,7 +118,7 @@ fn default_nph_coords_4k() -> NPHProfileCoords {
 fn default_nph_coords_fhd() -> NPHProfileCoords {
     NPHProfileCoords {
         active: (910, 125),
-        refresh: (515, 320),
+        refresh: (512, 347),
         scroll1_start: (990, 20),
         scroll1_end: (990, 185),
         scroll2_start: (990, 190),
