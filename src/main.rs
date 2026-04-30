@@ -105,6 +105,7 @@ fn config_auto_start() {
     println!("{}", format!("NPH TOOL STATUS (PATH): {}", nph_status).bold());
     println!("{}", format!("NPH ACTIVE COORDS: ({}, {})", config.nph_active_x, config.nph_active_y).bold());
     println!("{}", format!("NPH REFRESH COORDS: ({}, {})", config.nph_refresh_x, config.nph_refresh_y).bold());
+    println!("{}", format!("NPH Y OFFSET: {}", config.nph_y_offset).bold());
     println!("{}", format!("AUTO-SORT DELAY: {} SEC", config.auto_sort_delay_sec).bold());
     println!("{}", format!("SELECTED LDS: {:?}", config.auto_start_lds).bold());
     println!("{}", format!("SORT COLUMNS: {}", config.sort_columns).bold());
@@ -118,6 +119,7 @@ fn config_auto_start() {
     println!("  {}  {}", "[6]".cyan().bold(), "CHANGE SORT COLUMNS".bold());
     println!("  {}  {}", "[7]".cyan().bold(), "CHANGE NPH ACTIVE COORDS".bold());
     println!("  {}  {}", "[8]".cyan().bold(), "CHANGE NPH REFRESH COORDS".bold());
+    println!("  {}  {}", "[9]".cyan().bold(), "CHANGE NPH Y OFFSET".bold());
     println!("  {}  {}", "[0]".cyan().bold(), "GO BACK".bold());
     print!("\n{}", ">> CHOICE: ".yellow().bold());
     let _ = io::stdout().flush();
@@ -232,6 +234,19 @@ fn config_auto_start() {
                 config.nph_refresh_x = x;
                 config.nph_refresh_y = y;
                 log_success(-1, &format!("NPH REFRESH COORDS SET TO: ({}, {})", x, y));
+                save_config(&config);
+            }
+            pause_and_return();
+        }
+        9 => {
+            print!("{}", "ENTER NPH Y OFFSET (e.g. 15 or -10): ".bold());
+            let _ = io::stdout().flush();
+            let mut offset_input = String::new();
+            let _ = io::stdin().read_line(&mut offset_input);
+            
+            if let Ok(offset) = offset_input.trim().parse::<i32>() {
+                config.nph_y_offset = offset;
+                log_success(-1, &format!("NPH Y OFFSET SET TO: {}", offset));
                 save_config(&config);
             }
             pause_and_return();
@@ -466,7 +481,7 @@ fn run_nph_activation() {
         let y_coords_1_9 = [35, 95, 155, 220, 280, 340, 400, 465, 525];
         for i in 1..=9 {
             let x = if i == 1 { 280 } else { 305 };
-            let y = y_coords_1_9[i as usize - 1];
+            let y = y_coords_1_9[i as usize - 1] + config.nph_y_offset;
             log_system(&format!("OPENING GAME FOR LD {} AT ({}, {})...", i, x, y));
             click_relative(hwnd, x, y);
             std::thread::sleep(Duration::from_millis(500));
@@ -488,7 +503,7 @@ fn run_nph_activation() {
         let y_coords_10_15 = [200, 265, 325, 385, 450, 505];
         for i in 10..=15 {
             let x = 305;
-            let y = y_coords_10_15[i as usize - 10];
+            let y = y_coords_10_15[i as usize - 10] + config.nph_y_offset;
             log_system(&format!("OPENING GAME FOR LD {} AT ({}, {})...", i, x, y));
             click_relative(hwnd, x, y);
             std::thread::sleep(Duration::from_millis(500));
