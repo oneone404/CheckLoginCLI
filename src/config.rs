@@ -60,6 +60,8 @@ pub struct AppConfig {
     pub nph_refresh_x: i32,
     #[serde(default = "default_nph_refresh_y")]
     pub nph_refresh_y: i32,
+    #[serde(default = "default_nph_profile")]
+    pub nph_profile: String,
 }
 
 fn default_restart_minutes() -> u64 { DEFAULT_RESTART_MINUTES }
@@ -77,6 +79,7 @@ fn default_nph_active_x() -> i32 { 910 }
 fn default_nph_active_y() -> i32 { 125 }
 fn default_nph_refresh_x() -> i32 { 515 }
 fn default_nph_refresh_y() -> i32 { 320 }
+fn default_nph_profile() -> String { "FULLHD".to_string() }
 
 fn default_login_username_x() -> i32 { 480 }
 fn default_login_username_y() -> i32 { 213 }
@@ -111,6 +114,7 @@ impl Default for AppConfig {
             nph_active_y: 125,
             nph_refresh_x: 515,
             nph_refresh_y: 320,
+            nph_profile: "FULLHD".to_string(),
         }
     }
 }

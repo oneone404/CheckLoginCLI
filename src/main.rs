@@ -105,6 +105,7 @@ fn config_auto_start() {
     println!("{}", format!("NPH TOOL STATUS (PATH): {}", nph_status).bold());
     println!("{}", format!("NPH ACTIVE COORDS: ({}, {})", config.nph_active_x, config.nph_active_y).bold());
     println!("{}", format!("NPH REFRESH COORDS: ({}, {})", config.nph_refresh_x, config.nph_refresh_y).bold());
+    println!("{}", format!("CURRENT SCREEN PROFILE: {}", config.nph_profile).bold().magenta());
     println!("{}", format!("AUTO-SORT DELAY: {} SEC", config.auto_sort_delay_sec).bold());
     println!("{}", format!("SELECTED LDS: {:?}", config.auto_start_lds).bold());
     println!("{}", format!("SORT COLUMNS: {}", config.sort_columns).bold());
@@ -118,6 +119,7 @@ fn config_auto_start() {
     println!("  {}  {}", "[6]".cyan().bold(), "CHANGE SORT COLUMNS".bold());
     println!("  {}  {}", "[7]".cyan().bold(), "CHANGE NPH ACTIVE COORDS".bold());
     println!("  {}  {}", "[8]".cyan().bold(), "CHANGE NPH REFRESH COORDS".bold());
+    println!("  {}  {}", "[9]".cyan().bold(), "SWITCH SCREEN PROFILE (FULLHD/4K)".bold());
     println!("  {}  {}", "[0]".cyan().bold(), "GO BACK".bold());
     print!("\n{}", ">> CHOICE: ".yellow().bold());
     let _ = io::stdout().flush();
@@ -234,6 +236,16 @@ fn config_auto_start() {
                 log_success(-1, &format!("NPH REFRESH COORDS SET TO: ({}, {})", x, y));
                 save_config(&config);
             }
+            pause_and_return();
+        }
+        9 => {
+            if config.nph_profile == "FULLHD" {
+                config.nph_profile = "4K".to_string();
+            } else {
+                config.nph_profile = "FULLHD".to_string();
+            }
+            log_success(-1, &format!("SCREEN PROFILE SWITCHED TO: {}", config.nph_profile));
+            save_config(&config);
             pause_and_return();
         }
         _ => {}
@@ -406,6 +418,48 @@ fn run_power_options() {
     }
 }
 
+struct NPHCoords {
+    active: (i32, i32),
+    refresh: (i32, i32),
+    scroll1: ((i32, i32), (i32, i32)),
+    scroll2: ((i32, i32), (i32, i32)),
+    ld1_9: [(i32, i32); 9],
+    ld10_15: [(i32, i32); 6],
+}
+
+fn get_coords_by_profile(profile: &str) -> NPHCoords {
+    if profile == "4K" {
+        NPHCoords {
+            active: (910, 125),
+            refresh: (515, 320),
+            scroll1: ((990, 20), (990, 185)),
+            scroll2: ((990, 185), (990, 325)),
+            ld1_9: [
+                (280, 35), (305, 95), (305, 155), (305, 220), 
+                (305, 285), (305, 350), (305, 420), (305, 480), (305, 545)
+            ],
+            ld10_15: [
+                (305, 210), (305, 275), (305, 345), (305, 405), (305, 470), (305, 535)
+            ],
+        }
+    } else {
+        // Default FULLHD (Placeholders for now)
+        NPHCoords {
+            active: (910, 125),
+            refresh: (515, 320),
+            scroll1: ((990, 20), (990, 185)),
+            scroll2: ((990, 185), (990, 325)),
+            ld1_9: [
+                (280, 35), (305, 95), (305, 155), (305, 220), 
+                (305, 285), (305, 350), (305, 420), (305, 480), (305, 545)
+            ],
+            ld10_15: [
+                (305, 210), (305, 275), (305, 345), (305, 405), (305, 470), (305, 535)
+            ],
+        }
+    }
+}
+
 fn run_nph_activation() {
     log_system("STEP 1: STARTING NPH TOOL PROCESS...");
     let tool_path = "C:\\Program Files\\NPHTool\\tool.exe";
@@ -435,8 +489,10 @@ fn run_nph_activation() {
         std::thread::sleep(Duration::from_millis(500));
         
         let config = get_config();
-        log_system(&format!("STEP 4: CLICKING ACTIVE BUTTON AT ({}, {})...", config.nph_active_x, config.nph_active_y));
-        click_relative(hwnd, config.nph_active_x, config.nph_active_y);
+        let coords = get_coords_by_profile(&config.nph_profile);
+
+        log_system(&format!("STEP 4: CLICKING ACTIVE BUTTON AT ({}, {})...", coords.active.0, coords.active.1));
+        click_relative(hwnd, coords.active.0, coords.active.1);
         
         log_system("STEP 5: WAITING 5 SECONDS FOR REFRESH...");
         for i in (1..=5).rev() {
@@ -446,8 +502,8 @@ fn run_nph_activation() {
         }
         println!();
         
-        log_system(&format!("STEP 6: CLICKING REFRESH BUTTON AT ({}, {})...", config.nph_refresh_x, config.nph_refresh_y));
-        click_relative(hwnd, config.nph_refresh_x, config.nph_refresh_y);
+        log_system(&format!("STEP 6: CLICKING REFRESH BUTTON AT ({}, {})...", coords.refresh.0, coords.refresh.1));
+        click_relative(hwnd, coords.refresh.0, coords.refresh.1);
         
         // --- LOGIC 1: FULL AUTOMATION ---
         log_system("STEP 7: WAITING 5 SECONDS TO PERFORM INITIAL SCROLL...");
@@ -458,16 +514,12 @@ fn run_nph_activation() {
         }
         println!();
 
-        log_system("STEP 8: SCROLLING DOWN (990, 20) TO (990, 185)...");
-        drag_relative(hwnd, 990, 20, 990, 185);
+        log_system(&format!("STEP 8: SCROLLING DOWN ({}, {}) TO ({}, {})...", coords.scroll1.0.0, coords.scroll1.0.1, coords.scroll1.1.0, coords.scroll1.1.1));
+        drag_relative(hwnd, coords.scroll1.0.0, coords.scroll1.0.1, coords.scroll1.1.0, coords.scroll1.1.1);
         std::thread::sleep(Duration::from_secs(5));
 
         log_system("STEP 9: OPENING GAMES FOR LD 1-9...");
-        let ld1_9_coords = [
-            (280, 35), (305, 95), (305, 155), (305, 220), 
-            (305, 285), (305, 350), (305, 420), (305, 480), (305, 545)
-        ];
-        for (i, &(x, y)) in ld1_9_coords.iter().enumerate() {
+        for (i, &(x, y)) in coords.ld1_9.iter().enumerate() {
             log_system(&format!("OPENING GAME FOR LD {} AT ({}, {})...", i + 1, x, y));
             click_relative(hwnd, x, y);
             std::thread::sleep(Duration::from_millis(500));
@@ -481,15 +533,12 @@ fn run_nph_activation() {
         }
         println!();
 
-        log_system("STEP 11: SCROLLING DOWN (990, 185) TO (990, 325)...");
-        drag_relative(hwnd, 990, 185, 990, 325);
+        log_system(&format!("STEP 11: SCROLLING DOWN ({}, {}) TO ({}, {})...", coords.scroll2.0.0, coords.scroll2.0.1, coords.scroll2.1.0, coords.scroll2.1.1));
+        drag_relative(hwnd, coords.scroll2.0.0, coords.scroll2.0.1, coords.scroll2.1.0, coords.scroll2.1.1);
         std::thread::sleep(Duration::from_secs(5));
 
         log_system("STEP 12: OPENING GAMES FOR LD 10-15...");
-        let ld10_15_coords = [
-            (305, 210), (305, 275), (305, 345), (305, 405), (305, 470), (305, 535)
-        ];
-        for (i, &(x, y)) in ld10_15_coords.iter().enumerate() {
+        for (i, &(x, y)) in coords.ld10_15.iter().enumerate() {
             log_system(&format!("OPENING GAME FOR LD {} AT ({}, {})...", i + 10, x, y));
             click_relative(hwnd, x, y);
             std::thread::sleep(Duration::from_millis(500));
