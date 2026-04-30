@@ -202,25 +202,12 @@ mod win32 {
 
     pub fn click_relative(hwnd: isize, x: i32, y: i32) {
         if hwnd == 0 { return; }
-        let child_hwnd = get_child_window(hwnd);
-        
         unsafe {
-            let lparam = ((y as isize) << 16) | (x as isize);
-            
-            // Send to parent
-            SendMessageW(hwnd, WM_MOUSEMOVE, 0, lparam);
-            SendMessageW(hwnd, WM_ACTIVATE, WA_ACTIVATE, 0);
-            PostMessageW(hwnd, WM_LBUTTONDOWN, 1, lparam);
-            std::thread::sleep(std::time::Duration::from_millis(30));
-            PostMessageW(hwnd, WM_LBUTTONUP, 0, lparam);
-
-            // If there's a child (like in Chrome/Electron), send to it too
-            if child_hwnd != 0 && child_hwnd != hwnd {
-                SendMessageW(child_hwnd, WM_MOUSEMOVE, 0, lparam);
-                PostMessageW(child_hwnd, WM_LBUTTONDOWN, 1, lparam);
-                std::thread::sleep(std::time::Duration::from_millis(30));
-                PostMessageW(child_hwnd, WM_LBUTTONUP, 0, lparam);
-            }
+            let mut pt = Point { x, y };
+            ClientToScreen(hwnd, &mut pt);
+            SetCursorPos(pt.x, pt.y);
+            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
         }
     }
 
