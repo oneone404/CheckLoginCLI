@@ -28,10 +28,14 @@ mod win32 {
         fn ScreenToClient(hWnd: isize, lpPoint: *mut Point) -> i32;
         fn ClientToScreen(hWnd: isize, lpPoint: *mut Point) -> i32;
         fn PostMessageW(hWnd: isize, Msg: u32, wParam: usize, lParam: isize) -> i32;
+        fn SendMessageW(hWnd: isize, Msg: u32, wParam: usize, lParam: isize) -> isize;
     }
  
     const WM_LBUTTONDOWN: u32 = 0x0201;
     const WM_LBUTTONUP: u32 = 0x0202;
+    const WM_MOUSEMOVE: u32 = 0x0200;
+    const WM_ACTIVATE: u32 = 0x0006;
+    const WA_ACTIVATE: usize = 1;
 
     #[repr(C)]
     pub struct Point {
@@ -183,8 +187,18 @@ mod win32 {
         if hwnd == 0 { return; }
         unsafe {
             let lparam = ((y as isize) << 16) | (x as isize);
+            
+            // 1. Move mouse to position
+            SendMessageW(hwnd, WM_MOUSEMOVE, 0, lparam);
+            
+            // 2. Activate window (optional but helps)
+            SendMessageW(hwnd, WM_ACTIVATE, WA_ACTIVATE, 0);
+
+            // 3. Mouse Down
             PostMessageW(hwnd, WM_LBUTTONDOWN, 1, lparam);
-            std::thread::sleep(std::time::Duration::from_millis(10));
+            std::thread::sleep(std::time::Duration::from_millis(30));
+            
+            // 4. Mouse Up
             PostMessageW(hwnd, WM_LBUTTONUP, 0, lparam);
         }
     }
