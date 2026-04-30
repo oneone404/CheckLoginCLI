@@ -11,12 +11,14 @@ use crate::account::{claim_account_for_ld, assign_account_to_file};
 
 pub fn do_login(adb_serial: &str, username: &str, password: &str) -> bool {
     let config = get_config();
-    let username_x = config.login_username_x;
-    let username_y = config.login_username_y;
-    let password_x = config.login_password_x;
-    let password_y = config.login_password_y;
-    let login_btn_x = config.login_btn_x;
-    let login_btn_y = config.login_btn_y;
+    let coords = if config.nph_profile == "4K" { &config.nph_coords_4k } else { &config.nph_coords_fhd };
+    
+    let username_x = coords.login_username.0;
+    let username_y = coords.login_username.1;
+    let password_x = coords.login_password.0;
+    let password_y = coords.login_password.1;
+    let login_btn_x = coords.login_btn.0;
+    let login_btn_y = coords.login_btn.1;
 
     adb_tap(adb_serial, username_x, username_y);
     std::thread::sleep(Duration::from_millis(300));

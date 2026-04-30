@@ -33,6 +33,8 @@ pub mod win32 {
         fn EnumChildWindows(hWndParent: isize, lpEnumFunc: extern "system" fn(isize, isize) -> i32, lParam: isize) -> i32;
     }
  
+    const SM_CXSCREEN: i32 = 0;
+    const SM_CYSCREEN: i32 = 1;
     const VK_LBUTTON: i32 = 0x01;
     const WM_LBUTTONDOWN: u32 = 0x0201;
     const WM_LBUTTONUP: u32 = 0x0202;
@@ -226,6 +228,17 @@ pub mod win32 {
     pub fn is_clicked() -> bool {
         unsafe {
             (GetAsyncKeyState(VK_LBUTTON) as u32 & 0x8000) != 0
+        }
+    }
+
+    pub fn detect_screen_profile() -> String {
+        unsafe {
+            let width = GetSystemMetrics(SM_CXSCREEN);
+            if width >= 3840 {
+                "4K".to_string()
+            } else {
+                "FULLHD".to_string()
+            }
         }
     }
 

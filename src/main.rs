@@ -106,6 +106,7 @@ fn config_auto_start() {
     println!("{}", format!("NPH ACTIVE COORDS: ({}, {})", config.nph_active_x, config.nph_active_y).bold());
     println!("{}", format!("NPH REFRESH COORDS: ({}, {})", config.nph_refresh_x, config.nph_refresh_y).bold());
     println!("{}", format!("CURRENT SCREEN PROFILE: {}", config.nph_profile).bold().magenta());
+    println!("{}", format!("AUTO-DETECT PROFILE: {}", if config.auto_detect_profile { "ON".green() } else { "OFF".red() }).bold());
     println!("{}", format!("AUTO-SORT DELAY: {} SEC", config.auto_sort_delay_sec).bold());
     println!("{}", format!("SELECTED LDS: {:?}", config.auto_start_lds).bold());
     println!("{}", format!("SORT COLUMNS: {}", config.sort_columns).bold());
@@ -119,7 +120,8 @@ fn config_auto_start() {
     println!("  {}  {}", "[6]".cyan().bold(), "CHANGE SORT COLUMNS".bold());
     println!("  {}  {}", "[7]".cyan().bold(), "CHANGE NPH ACTIVE COORDS".bold());
     println!("  {}  {}", "[8]".cyan().bold(), "CHANGE NPH REFRESH COORDS".bold());
-    println!("  {}  {}", "[9]".cyan().bold(), "SWITCH SCREEN PROFILE (FULLHD/4K)".bold());
+    println!("  {}  {}", "[9]".cyan().bold(), "SWITCH SCREEN PROFILE (MANUAL)".bold());
+    println!("  {}  {}", "[10]".cyan().bold(), "TOGGLE AUTO-DETECT PROFILE".bold());
     println!("  {}  {}", "[0]".cyan().bold(), "GO BACK".bold());
     print!("\n{}", ">> CHOICE: ".yellow().bold());
     let _ = io::stdout().flush();
@@ -245,6 +247,12 @@ fn config_auto_start() {
                 config.nph_profile = "FULLHD".to_string();
             }
             log_success(-1, &format!("SCREEN PROFILE SWITCHED TO: {}", config.nph_profile));
+            save_config(&config);
+            pause_and_return();
+        }
+        10 => {
+            config.auto_detect_profile = !config.auto_detect_profile;
+            log_success(-1, &format!("AUTO-DETECT PROFILE: {}", if config.auto_detect_profile { "ON" } else { "OFF" }));
             save_config(&config);
             pause_and_return();
         }
@@ -643,6 +651,19 @@ async fn main() {
     }
 
     kill_previous_instance();
+
+    // Auto Detect Profile
+    {
+        let mut config = get_config();
+        if config.auto_detect_profile {
+            use crate::auto_nph::win32::detect_screen_profile;
+            let detected = detect_screen_profile();
+            if config.nph_profile != detected {
+                config.nph_profile = detected;
+                crate::config::save_config(&config);
+            }
+        }
+    }
 
     loop {
         clear_screen();

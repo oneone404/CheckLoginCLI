@@ -20,6 +20,9 @@ pub struct NPHProfileCoords {
     pub scroll2_end: (i32, i32),
     pub ld1_9: Vec<(i32, i32)>,
     pub ld10_15: Vec<(i32, i32)>,
+    pub login_username: (i32, i32),
+    pub login_password: (i32, i32),
+    pub login_btn: (i32, i32),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -74,6 +77,8 @@ pub struct AppConfig {
     pub nph_refresh_y: i32,
     #[serde(default = "default_nph_profile")]
     pub nph_profile: String,
+    #[serde(default = "default_auto_detect_profile")]
+    pub auto_detect_profile: bool,
     #[serde(default = "default_nph_coords_4k")]
     pub nph_coords_4k: NPHProfileCoords,
     #[serde(default = "default_nph_coords_fhd")]
@@ -96,6 +101,7 @@ fn default_nph_active_y() -> i32 { 125 }
 fn default_nph_refresh_x() -> i32 { 515 }
 fn default_nph_refresh_y() -> i32 { 320 }
 fn default_nph_profile() -> String { "FULLHD".to_string() }
+fn default_auto_detect_profile() -> bool { true }
 
 fn default_nph_coords_4k() -> NPHProfileCoords {
     NPHProfileCoords {
@@ -112,6 +118,9 @@ fn default_nph_coords_4k() -> NPHProfileCoords {
         ld10_15: vec![
             (305, 210), (305, 275), (305, 345), (305, 405), (305, 470), (305, 535)
         ],
+        login_username: (480, 213),
+        login_password: (480, 261),
+        login_btn: (480, 316),
     }
 }
 
@@ -130,6 +139,9 @@ fn default_nph_coords_fhd() -> NPHProfileCoords {
         ld10_15: vec![
             (307, 202), (304, 270), (308, 334), (308, 399), (310, 465), (306, 529)
         ],
+        login_username: (290, 140),
+        login_password: (290, 175),
+        login_btn: (290, 210),
     }
 }
 
@@ -167,6 +179,7 @@ impl Default for AppConfig {
             nph_refresh_x: 515,
             nph_refresh_y: 320,
             nph_profile: "FULLHD".to_string(),
+            auto_detect_profile: true,
             nph_coords_4k: default_nph_coords_4k(),
             nph_coords_fhd: default_nph_coords_fhd(),
         }
