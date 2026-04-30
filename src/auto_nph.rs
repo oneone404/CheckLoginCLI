@@ -233,6 +233,7 @@ pub mod win32 {
 
     pub fn detect_screen_profile() -> String {
         unsafe {
+            enable_dpi_aware();
             let width = GetSystemMetrics(SM_CXSCREEN);
             if width >= 3840 {
                 "4K".to_string()
