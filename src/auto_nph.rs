@@ -42,6 +42,7 @@ mod win32 {
     const WM_KEYDOWN: u32 = 0x0100;
     const WM_KEYUP: u32 = 0x0101;
     const VK_F5: usize = 0x74;
+    const VK_NEXT: usize = 0x22; // Page Down
 
     #[repr(C)]
     pub struct Point {
@@ -222,9 +223,20 @@ mod win32 {
 
     pub fn scroll_window(hwnd: isize, delta: i32) {
         if hwnd == 0 { return; }
+        let child_hwnd = get_child_window(hwnd);
         unsafe {
             let wparam = ((delta as u32) << 16) as usize;
+            
+            // Try Mouse Wheel on both
             SendMessageW(hwnd, WM_MOUSEWHEEL, wparam, 0);
+            if child_hwnd != 0 && child_hwnd != hwnd {
+                SendMessageW(child_hwnd, WM_MOUSEWHEEL, wparam, 0);
+            }
+
+            // Also try Page Down key for forced scrolling
+            PostMessageW(hwnd, WM_KEYDOWN, VK_NEXT, 0);
+            std::thread::sleep(std::time::Duration::from_millis(50));
+            PostMessageW(hwnd, WM_KEYUP, VK_NEXT, 0);
         }
     }
 
