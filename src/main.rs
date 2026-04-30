@@ -654,13 +654,15 @@ async fn main() {
 
     // Auto Detect Profile
     {
-        let mut config = get_config();
-        if config.auto_detect_profile {
+        let config_ref = get_config();
+        if config_ref.auto_detect_profile {
             use crate::auto_nph::win32::detect_screen_profile;
             let detected = detect_screen_profile();
-            if config.nph_profile != detected {
-                config.nph_profile = detected;
-                save_config(&config);
+            if config_ref.nph_profile != detected {
+                let mut new_config = config_ref.clone();
+                new_config.nph_profile = detected;
+                save_config(&new_config);
+                log_system(&format!("AUTO-DETECTED SCREEN: SWITCHED TO {}", new_config.nph_profile));
             }
         }
     }
